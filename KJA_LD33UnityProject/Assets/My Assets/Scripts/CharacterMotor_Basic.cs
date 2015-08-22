@@ -10,9 +10,11 @@ public class CharacterMotor_Basic : MonoBehaviour {
     Rigidbody2D rigidbodyThis;
     Vector3 mouseDirection;
 
+    CharMotor Motor;
 
 	// Use this for initialization
-	void Start () {
+	void Awake() {
+        Motor = GetComponent<CharMotor>();
         rigidbodyThis = GetComponent<Rigidbody2D>();
 	}
 
@@ -51,11 +53,18 @@ public class CharacterMotor_Basic : MonoBehaviour {
         if (Input.GetButton("Fire1"))
         {
             ObjectLookAtMouse();
-            rigidbodyThis.AddRelativeForce(new Vector2(0, acc));
-        }
-        if (rigidbodyThis.velocity.magnitude > maxSpeed)
+            //rigidbodyThis.AddRelativeForce(new Vector2(0, acc));
+       
+      /*  if (rigidbodyThis.velocity.magnitude > maxSpeed)
         {
             rigidbodyThis.velocity = rigidbodyThis.velocity.normalized * maxSpeed;
+        }*/
+           
+            var mr = Camera.main.ScreenPointToRay(Input.mousePosition);
+            float intr;
+            if(new Plane(Vector3.back, 0).Raycast(mr, out intr)) {
+                Motor.setTarget( mr.GetPoint( intr ) );
+            }
         }
     }
 
