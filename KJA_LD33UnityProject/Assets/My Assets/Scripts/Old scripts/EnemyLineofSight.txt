@@ -74,7 +74,7 @@ public class EnemyLineofSight : MonoBehaviour {
             playerInSight = false;
         }
     }
-
+    // fills vision cone with a solid colour so player can see it
     void GenerateColourCone()
     {
         int pointCount = 0;

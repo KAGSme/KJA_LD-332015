@@ -43,6 +43,7 @@ public class EnemyAI : MonoBehaviour {
     }
 
 	// Update is called once per frame
+    // diferent states that affect enemy behaviour
 	void Update () {
         switch(enemyState){
             case (EnemyState.PATROLLING):
@@ -185,6 +186,7 @@ public class EnemyAI : MonoBehaviour {
         }
     }
 
+    ////causes enemy to move to waypoints
     void MoveTowardsSimple(Vector3 destination, float speed)
     {
         if (!GameControl_MAIN.gameControl.isPaused)
@@ -197,6 +199,7 @@ public class EnemyAI : MonoBehaviour {
         }
     }
 
+    //causes enemy to just look at waypoints
     void LooksAtSimple(Vector3 destination)
     {
         var direction = destination - transform.position;
@@ -204,6 +207,7 @@ public class EnemyAI : MonoBehaviour {
         transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.AngleAxis(angle, Vector3.forward), turnSpeed * Time.deltaTime);
     }
 
+    //checks to see how close object is to its destination
     bool DestinationCloseDistanceCheck(Vector3 TargetDestination)
     {
         if (Mathf.Abs(Vector3.Magnitude(TargetDestination - transform.position)) < 4.0f)
