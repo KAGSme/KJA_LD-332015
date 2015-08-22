@@ -2,7 +2,7 @@
 using System.Collections;
 
 [RequireComponent(typeof(Rigidbody2D))]
-public class CharacterMotor_Basic : MonoBehaviour {
+public class PlayerController : MonoBehaviour {
 
     public float acceleration = 100;
     public float maxSpeed = 100;
