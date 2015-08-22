@@ -86,11 +86,16 @@ public class AIcontrol : MonoBehaviour {
 		//Debug.Log(i);
 	}
 
+<<<<<<< HEAD
 	//if can see player either go to alert or investigate
+=======
+
+>>>>>>> origin/master
 	void spotted()
-	{
+	{   
+
 		//stop walking
-		this.GetComponent<CharMotor>().setTarget(new Vector2(this.transform.position.x, this.transform.position.y));
+		GetComponent<CharMotor>().setTarget(new Vector2(this.transform.position.x, this.transform.position.y));
 		//look at player
 		var angle = Mathf.Atan2(tempPlayerPos.y, tempPlayerPos.x) * Mathf.Rad2Deg;
 		transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
