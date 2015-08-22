@@ -72,6 +72,6 @@ public class PlayerController : MonoBehaviour {
     void ObjectLookAtMouse()
     {
         var angle = Mathf.Atan2(mouseDirection.y, mouseDirection.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.AngleAxis(angle -90, Vector3.forward);
+        transform.rotation = Quaternion.AngleAxis(angle - 90, Vector3.forward);
     }
 }
