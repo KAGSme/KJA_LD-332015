@@ -62,24 +62,6 @@ public class CharMotor : MonoBehaviour {
 
 	void Update () {
 
-
-        if(Input.GetButton("Fire1")) {
-        
-            //rigidbodyThis.AddRelativeForce(new Vector2(0, acc));
-
-            /*  if (rigidbodyThis.velocity.magnitude > maxSpeed)
-              {
-                  rigidbodyThis.velocity = rigidbodyThis.velocity.normalized * maxSpeed;
-              }*/
-
-            var mr = Camera.main.ScreenPointToRay(Input.mousePosition);
-            float intr;
-            if(new Plane(Vector3.back, 0).Raycast(mr, out intr)) {
-                setTarget(mr.GetPoint(intr));
-                //Debug.DrawLine(transform.position, mr.GetPoint(intr));
-            }
-        }
-
         if( NavMsh == null ) return;
         CurNode = NavMsh.findNode(Trnsfrm.position, CurNode);
 
