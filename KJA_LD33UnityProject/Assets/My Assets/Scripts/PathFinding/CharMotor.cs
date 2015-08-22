@@ -8,6 +8,7 @@ public class CharMotor : MonoBehaviour {
 
     Rigidbody2D Bdy;
 
+    public 
     NavMesh NavMsh;
 
     public float Speed = 4;
@@ -28,9 +29,9 @@ public class CharMotor : MonoBehaviour {
     Vector2 ValidPos; 
 
     public void setTarget( Vector2 at ) {
-        Target = null;
         var n = NavMsh.findNode(at, TargetNode);
         if(n == null) return;
+        Target = null;
         TargetNode = n;
         TargetP = at;
     }

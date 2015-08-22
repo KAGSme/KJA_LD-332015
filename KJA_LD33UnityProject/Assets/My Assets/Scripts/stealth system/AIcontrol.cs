@@ -74,10 +74,12 @@ public class AIcontrol : MonoBehaviour {
 		//Debug.Log(i);
 	}
 
+
 	void spotted()
-	{
+	{   
+
 		//stop walking
-		this.GetComponent<CharMotor>().setTarget(new Vector2(this.transform.position.x, this.transform.position.y));
+		GetComponent<CharMotor>().setTarget(new Vector2(this.transform.position.x, this.transform.position.y));
 		//look at player
 		var angle = Mathf.Atan2(tempPlayerPos.y, tempPlayerPos.x) * Mathf.Rad2Deg;
 		transform.rotation = Quaternion.AngleAxis(angle - 90, Vector3.forward);
