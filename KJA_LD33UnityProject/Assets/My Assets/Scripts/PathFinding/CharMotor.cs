@@ -40,7 +40,7 @@ public class CharMotor : MonoBehaviour {
         Trnsfrm = transform;
         Bdy = GetComponent<Rigidbody2D>();
     }
-	void Start () {
+    protected void Start() {
 //        Target = FindObjectOfType<PlayerController>();
         NavMsh = FindObjectOfType<NavMesh>();
         TargetNode = CurNode = NavMsh.findNode(Trnsfrm.position, CurNode);
@@ -61,7 +61,7 @@ public class CharMotor : MonoBehaviour {
     }
 
 
-	void Update () {
+	protected void Update () {
 
         if( NavMsh == null ) return;
         CurNode = NavMsh.findNode(Trnsfrm.position, CurNode);
