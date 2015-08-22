@@ -29,8 +29,10 @@ public class CharMotor : MonoBehaviour {
 
     public void setTarget( Vector2 at ) {
         Target = null;
+        var n = NavMsh.findNode(at, TargetNode);
+        if(n == null) return;
+        TargetNode = n;
         TargetP = at;
-        TargetNode = NavMsh.findNode(at, TargetNode);
     }
 
     void Awake() {
