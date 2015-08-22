@@ -7,20 +7,18 @@ public class AlertOtherCollider : MonoBehaviour {
 
 	void OnTriggerEnter2D(Collider2D other)
 	{
-		Debug.Log("enter " + other.name);
-
 		if (other.gameObject.tag == "Enemy")
 		{
+			Debug.Log("enter " + other.name);
 			other.GetComponent<AIcontrol>().changeStatus(alertStatus.watch, this.gameObject);
 		}
 	}
 
 	void OnTriggerExit2D(Collider2D other)
-	{
-		Debug.Log("enter " + other.name);
-
+	{	
 		if (other.gameObject.tag == "Enemy")
 		{
+			Debug.Log("enter " + other.name);
 			other.GetComponent<AIcontrol>().changeStatus(alertStatus.calm);
 		}
 	}

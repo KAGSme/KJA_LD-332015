@@ -16,15 +16,25 @@ public enum alertStatus
 		alert
 	}
 
+public enum charType
+{
+	guard, 
+	villager
+}
+
 public class AIcontrol : MonoBehaviour {
 
 	public alertStatus curState;
 	public CircleCollider2D alertOtherCol;
 	float startTime;
 	public float inspectToAlarmTime;
+	public float inspectToCalmTime;
 	public List<PatrolMarker> patrolRoute;
 	int i = 0;
 	Vector3 tempPlayerPos;
+	GameObject tempEnemyObject;
+	public charType type;
+	public Vector3 safeZone;
 
 	void Update()
 	{
@@ -41,7 +51,7 @@ public class AIcontrol : MonoBehaviour {
 				break;
 			case alertStatus.watch:
 				watch();
-				break;
+				break;	
 			case alertStatus.alert:
 				alert();
 				break;
@@ -50,6 +60,8 @@ public class AIcontrol : MonoBehaviour {
 		}
 	}
 
+	//walk from point to point
+	//done
 	void Patrol()
 	{
 		
@@ -74,37 +86,69 @@ public class AIcontrol : MonoBehaviour {
 		//Debug.Log(i);
 	}
 
+<<<<<<< HEAD
+	//if can see player either go to alert or investigate
+=======
+
+>>>>>>> origin/master
 	void spotted()
-	{
+	{   
+
 		//stop walking
-		this.GetComponent<CharMotor>().setTarget(new Vector2(this.transform.position.x, this.transform.position.y));
+		GetComponent<CharMotor>().setTarget(new Vector2(this.transform.position.x, this.transform.position.y));
 		//look at player
 		var angle = Mathf.Atan2(tempPlayerPos.y, tempPlayerPos.x) * Mathf.Rad2Deg;
-		transform.rotation = Quaternion.AngleAxis(angle - 90, Vector3.forward);
+		transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
 		//if looking at time is longer go to alert status
 		if (Time.time - startTime > inspectToAlarmTime)
+		{
+			changeStatus(alertStatus.alert);
+			startTime = Time.time;
+		}
+	}
+
+	//look at the last know position for the player
+	//done
+	void inspect()
+	{
+		//alert other enemys
+		alertOtherCol.enabled = true;
+		//move to players last know location
+		this.GetComponent<CharMotor>().setTarget(tempPlayerPos);
+		//inpect area 
+		if (Time.time - startTime > inspectToCalmTime)
+		{
+			changeStatus(alertStatus.calm);
+			alertOtherCol.enabled = false;
+		}
+	}
+
+	//watch the person who went to investigate. if they die then go on alert 
+	//done
+	void watch()
+	{	
+		//stop moving
+		this.GetComponent<CharMotor>().setTarget(new Vector2(this.transform.position.x, this.transform.position.y));
+		//watch target 
+		var angle = Mathf.Atan2(tempEnemyObject.transform.position.y, tempEnemyObject.transform.position.x) * Mathf.Rad2Deg;
+		transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+		//if watching target dies go alert
+		if (tempEnemyObject==null)
 		{
 			changeStatus(alertStatus.alert);
 		}
 	}
 
-	void inspect()
-	{
-		//alert other enemys
-		//move to players last know location
-		//inpect area 
-		//resume patrol
-		curState = alertStatus.calm;
-	}
-
-	void watch()
-	{
-		//watch target 
-	}
-
 	void alert()
 	{
+		if (type == charType.villager)
+		{
+			this.GetComponent<CharMotor>().setTarget(safeZone);
+		}
+		else if (type == charType.guard)
+		{
 
+		}
 	}
 	
 	public void changeStatus(alertStatus newStatus)
@@ -134,18 +178,6 @@ public class AIcontrol : MonoBehaviour {
 		curState = newStatus;
 		Debug.Log("new state: " + newStatus);
 		watch();
-	}
-
-	void alertOthers()
-	{
-		if (alertOtherCol.enabled == false)
-		{
-			alertOtherCol.enabled = true;
-		}
-		else
-		{
-			alertOtherCol.enabled = false;
-		}
 	}
 
 	public void seePlayer(Vector3 playerPos)
