@@ -86,11 +86,8 @@ public class AIcontrol : MonoBehaviour {
 		//Debug.Log(i);
 	}
 
-<<<<<<< HEAD
 	//if can see player either go to alert or investigate
-=======
 
->>>>>>> origin/master
 	void spotted()
 	{   
 
