@@ -51,19 +51,18 @@ public class CharacterMotor_Basic : MonoBehaviour {
         if (Input.GetButton("Fire1"))
         {
             ObjectLookAtMouse();
-            rigidbodyThis.AddRelativeForce(new Vector2(acc, 0));
+            rigidbodyThis.AddRelativeForce(new Vector2(0, acc));
         }
         if (rigidbodyThis.velocity.magnitude > maxSpeed)
         {
             rigidbodyThis.velocity = rigidbodyThis.velocity.normalized * maxSpeed;
         }
-
     }
 
     //Orients camera to face cursor
     void ObjectLookAtMouse()
     {
         var angle = Mathf.Atan2(mouseDirection.y, mouseDirection.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+        transform.rotation = Quaternion.AngleAxis(angle -90, Vector3.forward);
     }
 }
