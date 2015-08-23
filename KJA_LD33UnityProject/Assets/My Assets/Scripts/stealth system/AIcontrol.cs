@@ -37,14 +37,19 @@ public class AIcontrol : MonoBehaviour {
 	public bool isStationary;
 	static GameObject player;
 	public float attackRateOfFire;
-	public float Damage;
+	public int Damage;
 	public float range;
 	bool canAttack;
 	float attackTime;
+	public AudioClip audioCalm;
+	public AudioClip audioSpotted;
+	public AudioClip audioAlarm;
+	AudioSource audio;
 
 	void Awake()
 	{
 		player = GameObject.Find("Monster Token");
+		audio = GetComponent<AudioSource>();
 	}
 
 	void Update()
@@ -220,7 +225,7 @@ public class AIcontrol : MonoBehaviour {
 			if (Vector2.Distance(this.transform.position, player.transform.position) <= range && canAttack == true)
 			{
 				//deal damage
-				//player.GetComponent<CharacterController>().
+				player.GetComponent<PlayerData>().IncreaseHP(Damage);
 				canAttack = false;
 			}
 		}
@@ -232,6 +237,8 @@ public class AIcontrol : MonoBehaviour {
 		Debug.Log("new state: " + newStatus);
 		if (curState == alertStatus.calm)
 		{
+			audio.clip = audioCalm;
+			audio.Play();
 			canAttack = true;
 			if (isStationary == true)
 			{
@@ -240,6 +247,8 @@ public class AIcontrol : MonoBehaviour {
 		}
 		else if (newStatus == alertStatus.spotted)
 		{
+			audio.clip = audioSpotted;
+			audio.Play();
 			spotted();
 		}
 		else if (newStatus == alertStatus.inspect)
@@ -248,6 +257,8 @@ public class AIcontrol : MonoBehaviour {
 		}
 		else if (newStatus == alertStatus.alert)
 		{
+			audio.clip = audioAlarm;
+			audio.Play();
 			alert();
 		}
 	}
