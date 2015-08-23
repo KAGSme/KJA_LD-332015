@@ -46,7 +46,7 @@ public class Enemy : CharMotor, Vision.Receiver {
     }
 
     void Vision.Receiver.spotted(CharMotor mtr) {
-        Debug.Log("spotted?");
+       
         Target = mtr;
         Vis.enabled = false;
     }
