@@ -10,7 +10,8 @@ public class PlayerController : MonoBehaviour {
     Rigidbody2D rigidbodyThis;
     Vector3 mouseDirection;
 
-    CharMotor Motor;
+    [HideInInspector] 
+    public CharMotor Motor;
 
 	// Use this for initialization
 	void Awake() {

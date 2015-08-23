@@ -6,11 +6,15 @@ public class CharMotor : MonoBehaviour {
 
     [HideInInspector] public Transform Trnsfrm;
 
-    Rigidbody2D Bdy;
+    [HideInInspector] public Rigidbody2D Bdy;
 
     NavMesh NavMsh;
 
     public float Speed = 4;
+    public float RotSpeed = 400.0f;
+    public float Accel = 10.0f;
+    public Transform RotObj;
+
     public NavMesh.Path Path;
     public int CurNodeI;
     NavMesh.Node CurNode;
@@ -21,8 +25,13 @@ public class CharMotor : MonoBehaviour {
     //two targeting modes..
     public CharMotor Target;
 
-    Vector2 TargetP;
-    NavMesh.Node TargetNode;
+    protected Vector2 TargetP;
+    protected  NavMesh.Node TargetNode;
+
+
+    float CurSpeed = 0;
+    [HideInInspector]
+    public Vector2 DesVec = Vector2.zero;
 
 
     Vector2 ValidPos; 
@@ -39,7 +48,7 @@ public class CharMotor : MonoBehaviour {
         Trnsfrm = transform;
         Bdy = GetComponent<Rigidbody2D>();
     }
-	void Start () {
+    protected void Start() {
 //        Target = FindObjectOfType<PlayerController>();
         NavMsh = FindObjectOfType<NavMesh>();
         TargetNode = CurNode = NavMsh.findNode(Trnsfrm.position, CurNode);
@@ -59,8 +68,8 @@ public class CharMotor : MonoBehaviour {
         return ret;
     }
 
-
-	void Update () {
+    int LastPath;
+	protected void Update () {
 
         if( NavMsh == null ) return;
         CurNode = NavMsh.findNode(Trnsfrm.position, CurNode);
@@ -74,14 +83,17 @@ public class CharMotor : MonoBehaviour {
         //Debug.DrawLine(tPos, cPos); 
 
         // if target moved much - need to recalculate path
-        if(Path != null) 
-            if((Path.Smooth[0].P - tPos).sqrMagnitude > 0.25f) Path = null;
+        if(Path != null && LastPath -Time.frameCount < -10 ) {
+            if((Path.Smooth[0].P - tPos).sqrMagnitude > 0.25f  || LastPath - Time.frameCount  <  -180 ) Path = null;
+
+        }
         
 
         if(Path == null) {
             Path = NavMsh.getPath(cPos, tPos, TargetNode);
 
             if(Path != null) {
+                LastPath = Time.frameCount;
                 CurNodeI = Path.Smooth.Count - 2;
                 ValidPos = Trnsfrm.position;
             //    Debug.Log("pc  " + Path.Smooth.Count + "  cn " + CurNode);
@@ -170,14 +182,43 @@ public class CharMotor : MonoBehaviour {
         }
 
         vec = tPos - cPos;
-        var mag = vec.magnitude;
-        if(mag > 0.1f) {
-            vec /= mag;
 
-            Bdy.velocity = vec * Speed;
-        } else Bdy.velocity = Vector2.zero;
+        DesVec = vec;
+       
     }
 
+    void FixedUpdate() {
+
+        var mag = DesVec.magnitude;
+        if(mag > 0.1f) {
+            DesVec /= mag;
+
+            CurSpeed += Accel * Time.deltaTime;
+
+            if(RotObj != null) {
+
+
+                var ang = Mathf.Atan2(DesVec.x, -DesVec.y) * Mathf.Rad2Deg;
+
+                var euler = RotObj.rotation.eulerAngles;
+                euler.z = Mathf.MoveTowardsAngle(euler.z, ang, Time.deltaTime * RotSpeed);
+                RotObj.rotation = Quaternion.Euler(euler);
+
+                var dot = Vector2.Dot(DesVec, -RotObj.up);
+
+                if(dot < 0.2f) {
+                    CurSpeed = 0;
+                } else {
+                    CurSpeed *= dot;
+                }
+            } else {
+                if(Vector2.Dot(Bdy.velocity.normalized, DesVec) < -0.1f) CurSpeed = 0;
+            }
+
+            if(CurSpeed > Speed) CurSpeed = Speed;
+            Bdy.velocity = DesVec * CurSpeed;
+        } else Bdy.velocity = Vector2.zero;
+    }
 
     // wave manager needs to know how many enemies are active
     void OnEnable() {
@@ -193,6 +234,10 @@ public class CharMotor : MonoBehaviour {
 
     void OnDrawGizmos() {
 
+        if(Application.isPlaying) {
+            Gizmos.color = Color.red;
+            Gizmos.DrawLine(transform.position, TargetP);
+        }
         if(Path != null) {
            //*
             Gizmos.color = Color.grey;
