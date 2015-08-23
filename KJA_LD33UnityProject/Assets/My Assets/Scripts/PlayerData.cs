@@ -3,10 +3,10 @@ using System.Collections;
 
 public class PlayerData : MonoBehaviour {
 
-    int hp;
+    float hp;
     [Range(1,600)]
     public int maxhp;
-    int mana;
+    float mana;
     [Range(1, 600)]
     public int maxMana;
     float stamina;
@@ -15,14 +15,14 @@ public class PlayerData : MonoBehaviour {
     [Range(1, 600)]
     public float staminaRegen;
 
-    public int Hp { get { return hp; } }
-    public int Mana { get { return mana; } }
+    public float Hp { get { return hp; } }
+    public float Mana { get { return mana; } }
     public float Stamina { get { return stamina; } }
 
 	// Use this for initialization
 	void Start () {
-        hp = maxhp;
-        mana = 0;
+        hp = maxhp/2;
+        mana = 100;
         stamina = 0;
 	}
 	
@@ -32,6 +32,9 @@ public class PlayerData : MonoBehaviour {
         {
             stamina += Time.deltaTime * staminaRegen;
         }
+        hp = Mathf.Clamp(hp, 0, maxhp);
+        mana = Mathf.Clamp(mana, 0, maxMana);
+        stamina = Mathf.Clamp(stamina, 0, maxStamina);
 	}
 
      public void IncreaseHP(int increase)
