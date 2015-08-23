@@ -234,9 +234,10 @@ public class CharMotor : MonoBehaviour {
 
     void OnDrawGizmos() {
 
-        Gizmos.color = Color.red;
-        Gizmos.DrawLine( transform.position, TargetP );
-
+        if(Application.isPlaying) {
+            Gizmos.color = Color.red;
+            Gizmos.DrawLine(transform.position, TargetP);
+        }
         if(Path != null) {
            //*
             Gizmos.color = Color.grey;

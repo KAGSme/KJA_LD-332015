@@ -1,12 +1,17 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Enemy : CharMotor {
+public class Enemy : CharMotor, Vision.Receiver {
 
-    
+
+    Vision Vis;
+
     void Start() {
         base.Start();
         //Target = FindObjectOfType<PlayerController>().Motor;
+
+        Vis = GetComponentInChildren<Vision>();
+        Vis.Recv = this;
 
         targetWP();
     }
@@ -38,6 +43,12 @@ public class Enemy : CharMotor {
 
 
         base.Update();
+    }
+
+    void Vision.Receiver.spotted(CharMotor mtr) {
+        Debug.Log("spotted?");
+        Target = mtr;
+        Vis.enabled = false;
     }
 
     //void OnDrawGizmos

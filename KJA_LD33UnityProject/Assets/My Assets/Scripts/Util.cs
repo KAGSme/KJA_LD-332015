@@ -62,4 +62,8 @@ public class Util  {
         return ua >= 0 && ub >= 0 && ua <= 1 && ub <= 1;
     }
 
+    public static T cast<T>(object o) {
+        return (T)o;
+    }
+
 }
