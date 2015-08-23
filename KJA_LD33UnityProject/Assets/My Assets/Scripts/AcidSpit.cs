@@ -7,6 +7,7 @@ public class AcidSpit : MonoBehaviour {
     Vector3 destination;
     Rigidbody2D rb;
     public float speed;
+    public GameObject puddlePrefab;
 
 
 	// Use this for initialization
@@ -37,6 +38,7 @@ public class AcidSpit : MonoBehaviour {
 
     void Explode()
     {
+        GameObject puddle = (GameObject)Instantiate(puddlePrefab, transform.position, Quaternion.identity);
         Destroy(this.gameObject);
     }
 
