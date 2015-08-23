@@ -16,7 +16,7 @@ public class FOVCollider : MonoBehaviour {
 		if (other.gameObject.tag == "Player")
 		{
 			Debug.Log("enter " + other.name);
-			attatchedEnemy.seePlayer(other.transform.position);
+			attatchedEnemy.seePlayer(other.transform);		
 		}
 	}
 
@@ -25,7 +25,7 @@ public class FOVCollider : MonoBehaviour {
 		if (other.gameObject.tag == "Player")
 		{
 			Debug.Log("exit " + other.name);
-			attatchedEnemy.lostPlayer();
+			//attatchedEnemy.lostPlayer();		
 		}
 	}
 

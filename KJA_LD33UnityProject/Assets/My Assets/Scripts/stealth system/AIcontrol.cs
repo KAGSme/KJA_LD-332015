@@ -31,8 +31,7 @@ public class AIcontrol : MonoBehaviour {
 	public float inspectToCalmTime;
 	public List<PatrolMarker> patrolRoute;
 	int i = 0;
-	Vector3 tempPlayerPos;
-	GameObject tempEnemyObject;
+	Vector3 lootAtPoint;
 	public charType type;
 	public Vector3 safeZone;
 
@@ -44,10 +43,39 @@ public class AIcontrol : MonoBehaviour {
 				Patrol();
 				break;
 			case alertStatus.spotted:
-				spotted();
+				//spotted();
+				Debug.Log("countdown time: " + (Time.time - startTime));
+				if (Time.time - startTime > inspectToAlarmTime)
+				{
+					Debug.Log("countdown done");
+					//startTime = Time.time;
+					changeStatus(alertStatus.alert);			
+				}
+				else
+				{
+					Vector2 direction = lootAtPoint - transform.position;
+					RaycastHit2D hit = Physics2D.Raycast(transform.position, direction.normalized, 100, LayerMask.GetMask("Player"));
+					Debug.DrawLine(transform.position, lootAtPoint, Color.red);
+					if (!hit)
+					{
+						Debug.Log("no hit");
+						changeStatus(alertStatus.inspect);
+					}
+					else
+					{
+						Debug.Log("hit" + hit.collider.gameObject.name);
+					}
+				}
 				break;
 			case alertStatus.inspect:
-				inspect();
+				//inspect();
+				Debug.Log("countdown time: " + (Time.time - startTime));
+				if (Time.time - startTime > inspectToCalmTime)
+				{
+					Debug.Log("countdown done");
+					changeStatus(alertStatus.calm);
+					alertOtherCol.enabled = false;
+				}
 				break;
 			case alertStatus.watch:
 				watch();
@@ -64,7 +92,6 @@ public class AIcontrol : MonoBehaviour {
 	//done
 	void Patrol()
 	{
-		
 		this.GetComponent<CharMotor>().setTarget(patrolRoute[i].position);
 		if (this.transform.position.x > patrolRoute[i].position.x - 0.1 && this.transform.position.x < patrolRoute[i].position.x + 0.1)
 		{
@@ -90,18 +117,15 @@ public class AIcontrol : MonoBehaviour {
 
 	void spotted()
 	{   
-
 		//stop walking
 		GetComponent<CharMotor>().setTarget(new Vector2(this.transform.position.x, this.transform.position.y));
 		//look at player
-		var angle = Mathf.Atan2(tempPlayerPos.y, tempPlayerPos.x) * Mathf.Rad2Deg;
-		transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
-		//if looking at time is longer go to alert status
-		if (Time.time - startTime > inspectToAlarmTime)
-		{
-			changeStatus(alertStatus.alert);
-			startTime = Time.time;
-		}
+		Debug.Log(lootAtPoint);
+		Vector3 vectorToTarget = lootAtPoint - this.transform.position;
+		float angle = Mathf.Atan2(vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg;
+		Quaternion q = Quaternion.AngleAxis(angle, Vector3.forward);
+		transform.rotation = Quaternion.Slerp(transform.rotation, q, Time.deltaTime * 10);
+		//if looking at time is longer go to alert status	
 	}
 
 	//look at the last know position for the player
@@ -111,13 +135,7 @@ public class AIcontrol : MonoBehaviour {
 		//alert other enemys
 		alertOtherCol.enabled = true;
 		//move to players last know location
-		this.GetComponent<CharMotor>().setTarget(tempPlayerPos);
-		//inpect area 
-		if (Time.time - startTime > inspectToCalmTime)
-		{
-			changeStatus(alertStatus.calm);
-			alertOtherCol.enabled = false;
-		}
+		this.GetComponent<CharMotor>().setTarget(lootAtPoint);	
 	}
 
 	//watch the person who went to investigate. if they die then go on alert 
@@ -127,19 +145,17 @@ public class AIcontrol : MonoBehaviour {
 		//stop moving
 		this.GetComponent<CharMotor>().setTarget(new Vector2(this.transform.position.x, this.transform.position.y));
 		//watch target 
-		var angle = Mathf.Atan2(tempEnemyObject.transform.position.y, tempEnemyObject.transform.position.x) * Mathf.Rad2Deg;
-		transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
-		//if watching target dies go alert
-		if (tempEnemyObject==null)
-		{
-			changeStatus(alertStatus.alert);
-		}
+		Vector3 vectorToTarget = lootAtPoint - transform.position;
+		float angle = Mathf.Atan2(vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg;
+		Quaternion q = Quaternion.AngleAxis(angle, Vector3.forward);
+		transform.rotation = Quaternion.Slerp(transform.rotation, q, Time.deltaTime * 10);
 	}
 
 	void alert()
 	{
 		if (type == charType.villager)
 		{
+			Debug.Log("go to safe zone");
 			this.GetComponent<CharMotor>().setTarget(safeZone);
 		}
 		else if (type == charType.guard)
@@ -177,15 +193,39 @@ public class AIcontrol : MonoBehaviour {
 		watch();
 	}
 
-	public void seePlayer(Vector3 playerPos)
+	public alertStatus getStatus()
 	{
-		changeStatus(alertStatus.spotted);
-		startTime = Time.time;
+		return curState;
+	}
+
+	public void seePlayer(Transform playerPos)
+	{
+		if (curState == alertStatus.calm)
+		{
+			startTime = Time.time;
+			lootAtPoint = playerPos.position;
+			Debug.Log(lootAtPoint);
+			changeStatus(alertStatus.spotted);
+		}
+		else if (curState == alertStatus.inspect)
+		{
+			startTime = Time.time;
+			lootAtPoint = playerPos.position;
+			Debug.Log(lootAtPoint);
+			changeStatus(alertStatus.alert);
+		}
 	}
 
 	public void lostPlayer()
 	{
-		changeStatus(alertStatus.inspect);
+		if (curState == alertStatus.spotted)
+		{
+			changeStatus(alertStatus.inspect);
+		}
+		else if (curState == alertStatus.alert)
+		{
+			changeStatus(alertStatus.inspect);
+		}
 	}
 
 }
