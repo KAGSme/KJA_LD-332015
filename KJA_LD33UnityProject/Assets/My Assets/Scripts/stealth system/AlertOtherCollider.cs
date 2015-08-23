@@ -11,7 +11,14 @@ public class AlertOtherCollider : MonoBehaviour {
 		if (other.gameObject.tag == "Enemy")
 		{
 			Debug.Log("call " + other.name);
-			other.GetComponent<AIcontrol>().changeStatus(alertStatus.watch, this.gameObject);
+			if (attatchedEnemy.getStatus() == alertStatus.alert)
+			{
+				other.GetComponent<AIcontrol>().changeStatus(alertStatus.alert);
+			}
+			else
+			{
+				other.GetComponent<AIcontrol>().changeStatus(alertStatus.watch, this.gameObject);
+			}		
 		}
 	}
 

@@ -8,7 +8,7 @@ public class FOVCollider : MonoBehaviour {
 
 	void Awake()
 	{
-		//GenerateColourCone();
+		GenerateColourCone();
 	}
 
 	void OnTriggerEnter2D(Collider2D other)

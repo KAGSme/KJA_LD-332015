@@ -34,16 +34,32 @@ public class AIcontrol : MonoBehaviour {
 	Vector3 lootAtPoint;
 	public charType type;
 	public Vector3 safeZone;
-	public bool stationary;
+	public bool isStationary;
+	static GameObject player;
+	public float attackRateOfFire;
+	public float Damage;
+	public float range;
+	bool canAttack;
+	float attackTime;
+
+	void Awake()
+	{
+		player = GameObject.Find("Monster Token");
+	}
 
 	void Update()
 	{
 		switch (curState)
 		{
 			case alertStatus.calm:
-				if (stationary == false)
+				if (isStationary == false)
 				{
 					Patrol();
+				}
+				if (isStationary == true)
+				{
+					Debug.Log("stat 0");
+					stationary();
 				}
 				break;
 			case alertStatus.spotted:
@@ -92,6 +108,13 @@ public class AIcontrol : MonoBehaviour {
 				break;	
 			case alertStatus.alert:
 				alert();
+				if (canAttack == false)
+				{
+					if (Time.time - attackTime > attackRateOfFire)
+					{
+						canAttack = true;
+					}
+				}
 				break;
 			default:
 				break;
@@ -122,6 +145,27 @@ public class AIcontrol : MonoBehaviour {
 			}
 		}
 		//Debug.Log(i);
+	}
+
+	void stationary()
+	{
+		Debug.Log("stat 1");
+		if (this.transform.position.x > patrolRoute[0].position.x - 0.1 && this.transform.position.x < patrolRoute[0].position.x + 0.1)
+		{
+			Debug.Log("stat 2");
+			if (this.transform.position.y > patrolRoute[0].position.y - 0.1 && this.transform.position.y < patrolRoute[0].position.y + 0.1)
+			{
+				Debug.Log("stat 3");
+				if (this.transform.rotation.z != patrolRoute[0].lookDirection.z)
+				{
+					Debug.Log("stat 4");
+					Vector3 vectorToTarget = patrolRoute[0].lookDirection - this.transform.position;
+					float angle = Mathf.Atan2(vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg;
+					Quaternion q = Quaternion.AngleAxis(angle - 180, Vector3.forward);
+					transform.rotation = Quaternion.Slerp(transform.rotation, q, Time.deltaTime * 10);
+				}				
+			}
+		}
 	}
 
 	//if can see player either go to alert or investigate
@@ -158,7 +202,7 @@ public class AIcontrol : MonoBehaviour {
 		//watch target 
 		Vector3 vectorToTarget = lootAtPoint - transform.position;
 		float angle = Mathf.Atan2(vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg;
-		Quaternion q = Quaternion.AngleAxis(angle, Vector3.forward);
+		Quaternion q = Quaternion.AngleAxis(angle - 180, Vector3.forward);
 		transform.rotation = Quaternion.Slerp(transform.rotation, q, Time.deltaTime * 10);
 	}
 
@@ -172,6 +216,13 @@ public class AIcontrol : MonoBehaviour {
 		else if (type == charType.guard)
 		{
 			//follow and attack player
+			this.GetComponent<CharMotor>().setTarget(player.transform.position);
+			if (Vector2.Distance(this.transform.position, player.transform.position) <= range && canAttack == true)
+			{
+				//deal damage
+				//player.GetComponent<CharacterController>().
+				canAttack = false;
+			}
 		}
 	}
 	
@@ -181,7 +232,8 @@ public class AIcontrol : MonoBehaviour {
 		Debug.Log("new state: " + newStatus);
 		if (curState == alertStatus.calm)
 		{
-			if (stationary == true)
+			canAttack = true;
+			if (isStationary == true)
 			{
 				this.GetComponent<CharMotor>().setTarget(patrolRoute[0].position);
 			}
