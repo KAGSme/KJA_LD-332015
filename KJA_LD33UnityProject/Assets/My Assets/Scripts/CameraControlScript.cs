@@ -29,7 +29,6 @@ public class CameraControlScript : MonoBehaviour {
         {
             transform.Translate(Vector3.right * cameraSpeed * Time.deltaTime);
         }
-
         if (Input.mousePosition.y <= 0)
         {
             transform.Translate(Vector3.down * cameraSpeed * Time.deltaTime);
@@ -38,7 +37,6 @@ public class CameraControlScript : MonoBehaviour {
         {
             transform.Translate(Vector3.up * cameraSpeed * Time.deltaTime);
         }
-
         if (Input.GetButton("CameraReset"))
         {
            transform.position = new Vector3(playerPos.position.x, playerPos.position.y, transform.position.z);
