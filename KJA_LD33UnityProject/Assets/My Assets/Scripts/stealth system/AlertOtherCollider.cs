@@ -5,11 +5,12 @@ public class AlertOtherCollider : MonoBehaviour {
 
 	public AIcontrol attatchedEnemy;
 
-	void OnTriggerEnter2D(Collider2D other)
+	void OnTriggerStay2D(Collider2D other)
 	{
+		//Debug.Log("call " + other.name);
 		if (other.gameObject.tag == "Enemy")
 		{
-			Debug.Log("enter " + other.name);
+			Debug.Log("call " + other.name);
 			other.GetComponent<AIcontrol>().changeStatus(alertStatus.watch, this.gameObject);
 		}
 	}
@@ -18,7 +19,7 @@ public class AlertOtherCollider : MonoBehaviour {
 	{	
 		if (other.gameObject.tag == "Enemy")
 		{
-			Debug.Log("enter " + other.name);
+			Debug.Log("no call " + other.name);
 			other.GetComponent<AIcontrol>().changeStatus(alertStatus.calm);
 		}
 	}

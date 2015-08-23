@@ -34,20 +34,24 @@ public class AIcontrol : MonoBehaviour {
 	Vector3 lootAtPoint;
 	public charType type;
 	public Vector3 safeZone;
+	public bool stationary;
 
 	void Update()
 	{
 		switch (curState)
 		{
 			case alertStatus.calm:
-				Patrol();
+				if (stationary == false)
+				{
+					Patrol();
+				}
 				break;
 			case alertStatus.spotted:
 				//spotted();
-				Debug.Log("countdown time: " + (Time.time - startTime));
+				//Debug.Log("countdown time: " + (Time.time - startTime));
 				if (Time.time - startTime > inspectToAlarmTime)
 				{
-					Debug.Log("countdown done");
+					//Debug.Log("countdown done");
 					//startTime = Time.time;
 					changeStatus(alertStatus.alert);			
 				}
@@ -69,16 +73,22 @@ public class AIcontrol : MonoBehaviour {
 				break;
 			case alertStatus.inspect:
 				//inspect();
-				Debug.Log("countdown time: " + (Time.time - startTime));
+				//Debug.Log("countdown time: " + (Time.time - startTime));
 				if (Time.time - startTime > inspectToCalmTime)
 				{
-					Debug.Log("countdown done");
+					//Debug.Log("countdown done");
 					changeStatus(alertStatus.calm);
 					alertOtherCol.enabled = false;
 				}
 				break;
 			case alertStatus.watch:
-				watch();
+				//watch();
+				if (Time.time - startTime > inspectToCalmTime)
+				{
+					//Debug.Log("countdown done");
+					changeStatus(alertStatus.calm);
+					alertOtherCol.enabled = false;
+				}
 				break;	
 			case alertStatus.alert:
 				alert();
@@ -92,6 +102,7 @@ public class AIcontrol : MonoBehaviour {
 	//done
 	void Patrol()
 	{
+		//Debug.Log("patrol");
 		this.GetComponent<CharMotor>().setTarget(patrolRoute[i].position);
 		if (this.transform.position.x > patrolRoute[i].position.x - 0.1 && this.transform.position.x < patrolRoute[i].position.x + 0.1)
 		{
@@ -99,12 +110,12 @@ public class AIcontrol : MonoBehaviour {
 			{
 				if (i+1 == patrolRoute.Count)
 				{
-					Debug.Log("change: full rotation");
+					//Debug.Log("change: full rotation");
 					i = 0;
 				}
 				else
 				{
-					Debug.Log("change: next point");
+					//Debug.Log("change: next point");
 					i++;
 				}
 				this.GetComponent<CharMotor>().setTarget(patrolRoute[i].position);
@@ -123,7 +134,7 @@ public class AIcontrol : MonoBehaviour {
 		Debug.Log(lootAtPoint);
 		Vector3 vectorToTarget = lootAtPoint - this.transform.position;
 		float angle = Mathf.Atan2(vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg;
-		Quaternion q = Quaternion.AngleAxis(angle, Vector3.forward);
+		Quaternion q = Quaternion.AngleAxis(angle - 180, Vector3.forward);
 		transform.rotation = Quaternion.Slerp(transform.rotation, q, Time.deltaTime * 10);
 		//if looking at time is longer go to alert status	
 	}
@@ -155,12 +166,12 @@ public class AIcontrol : MonoBehaviour {
 	{
 		if (type == charType.villager)
 		{
-			Debug.Log("go to safe zone");
+			//Debug.Log("go to safe zone");
 			this.GetComponent<CharMotor>().setTarget(safeZone);
 		}
 		else if (type == charType.guard)
 		{
-
+			//follow and attack player
 		}
 	}
 	
@@ -168,9 +179,12 @@ public class AIcontrol : MonoBehaviour {
 	{
 		curState = newStatus;
 		Debug.Log("new state: " + newStatus);
-		if (newStatus == alertStatus.calm)
+		if (curState == alertStatus.calm)
 		{
-			Patrol();
+			if (stationary == true)
+			{
+				this.GetComponent<CharMotor>().setTarget(patrolRoute[0].position);
+			}
 		}
 		else if (newStatus == alertStatus.spotted)
 		{
@@ -189,6 +203,7 @@ public class AIcontrol : MonoBehaviour {
 	public void changeStatus(alertStatus newStatus, GameObject watchThis)
 	{
 		curState = newStatus;
+		startTime = Time.time;
 		Debug.Log("new state: " + newStatus);
 		watch();
 	}
@@ -204,14 +219,14 @@ public class AIcontrol : MonoBehaviour {
 		{
 			startTime = Time.time;
 			lootAtPoint = playerPos.position;
-			Debug.Log(lootAtPoint);
+			//Debug.Log(lootAtPoint);
 			changeStatus(alertStatus.spotted);
 		}
-		else if (curState == alertStatus.inspect)
+		else if (curState == alertStatus.inspect || curState == alertStatus.watch)
 		{
 			startTime = Time.time;
 			lootAtPoint = playerPos.position;
-			Debug.Log(lootAtPoint);
+			//Debug.Log(lootAtPoint);
 			changeStatus(alertStatus.alert);
 		}
 	}
