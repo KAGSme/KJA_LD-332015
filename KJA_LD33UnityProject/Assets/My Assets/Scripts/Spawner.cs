@@ -36,7 +36,7 @@ public class Spawner : MonoBehaviour {
             if(fab != null) {
 
 
-                var bot = (Instantiate(fab, Trnsfrm.position + (Vector3) Random.insideUnitCircle*Radius, Quaternion.identity) as GameObject).GetComponent<Enemy>();
+                var bot = (Instantiate(fab, getP(), Quaternion.identity) as GameObject).GetComponent<Enemy>();
                 //Spawning.Add(bot);
                 //bot.enabled = false;
               //  bot.rigidbody2D.isKinematic = true;
@@ -44,8 +44,12 @@ public class Spawner : MonoBehaviour {
         }
     }
 
-    void OnDrawGizmos() {
+    Vector2 getP() {
+        return (Vector2)Trnsfrm.position + Random.insideUnitCircle * Radius;
+    }
 
+    void OnDrawGizmos() {
+        Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, Radius);
     }
 }
