@@ -80,8 +80,12 @@ Then invoke this using reflection:
                 var mag = vec.magnitude; vec /= mag;
                 if(Vector2.Dot(Motor.Trnsfrm.up, vec.normalized) < Cone) continue;
 
-                var hit = Physics2D.Raycast(Motor.Trnsfrm.position, vec, mag, ObstacleLayers);
-                if(hit.collider != null) break;
+                var hit = Physics2D.Raycast(Motor.Trnsfrm.position, -vec, mag, ObstacleLayers);
+                //Debug.DrawLine(Motor.Trnsfrm.position, (Vector2)Motor.Trnsfrm.position - vec * mag);
+                //Debug.Log("hit " + hit + "  hit " + hit.collider);
+
+                if(hit.collider != null) continue;
+                
 
                 Recv.spotted(mtr);
             }
