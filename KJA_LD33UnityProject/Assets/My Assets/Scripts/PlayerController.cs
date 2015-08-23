@@ -4,8 +4,8 @@ using System.Collections;
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour {
 
-    public float acceleration = 100;
-    public float maxSpeed = 100;
+    float acceleration = 100;
+    float maxSpeed = 100;
     public float deadzone = 3f;
     Rigidbody2D rigidbodyThis;
     Vector3 mouseDirection;
@@ -53,7 +53,7 @@ public class PlayerController : MonoBehaviour {
     {
         if (Input.GetButton("Fire1"))
         {
-            ObjectLookAtMouse();
+            //ObjectLookAtMouse();
             //rigidbodyThis.AddRelativeForce(new Vector2(0, acc));
        
       /*  if (rigidbodyThis.velocity.magnitude > maxSpeed)
