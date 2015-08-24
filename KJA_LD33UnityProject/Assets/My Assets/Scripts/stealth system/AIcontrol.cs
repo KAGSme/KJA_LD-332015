@@ -3,28 +3,31 @@ using System.Collections;
 using System.Collections.Generic;
 
 public enum alertStatus
-	{
-		//default
-		calm,
-		//saw enemy
-		spotted,
-		//move to area
-		inspect,
-		//watch person inspect
-		watch,
-		//everyone knows
-		alert
-	}
+{
+	//default
+	calm,
+	//saw enemy
+	spotted,
+	//run when on low hp
+	flee,
+	//move to area
+	inspect,
+	//watch person inspect
+	watch,
+	//everyone knows
+	alert
+}
 
 public enum charType
 {
-	guard, 
+	guard,
 	villager
 }
 
-public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receiver {
+public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receiver
+{
 
-    public int Health = 100;
+	public int Health = 100;
 	public alertStatus curState;
 	public CircleCollider2D alertOtherCol;
 	float startTime;
@@ -51,21 +54,22 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 	bool canAttack;
 	float attackTime; */
 
-    [System.Serializable]
-    public class Attack {
-        public float Range = 1;
-        public float RoF = 1;
-        public int Damage = 1;
-        public float Duration = 0.3f;
-        [HideInInspector]
-        public float LastAttack;
-        [HideInInspector]
-        public CharMotor LastTarget;
-    };
+	[System.Serializable]
+	public class Attack
+	{
+		public float Range = 1;
+		public float RoF = 1;
+		public int Damage = 1;
+		public float Duration = 0.3f;
+		[HideInInspector]
+		public float LastAttack;
+		[HideInInspector]
+		public CharMotor LastTarget;
+	};
 
-    public List<Attack> Attacks;
+	public List<Attack> Attacks;
 
-    Attack CurAttack;
+	Attack CurAttack;
 
 
 	public AudioClip audioCalm;
@@ -73,11 +77,12 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 	public AudioClip audioAlarm;
 	AudioSource audio;
 
-    CharMotor Threat;
-    [HideInInspector] public CharMotor Mtr;
-    Vision Vis;
-    Repulsor Rep;
-    Animation Anim;
+	CharMotor Threat;
+	[HideInInspector]
+	public CharMotor Mtr;
+	Vision Vis;
+	Repulsor Rep;
+	Animation Anim;
     LineRenderer LnRndr;
 
     public float ThreatLevel = 0;
@@ -86,11 +91,13 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 
 
     float DefSpeed;
+    bool canRegen = true;
+    float regenCoolDown;
 
 	void Awake()
 	{
 		//player = GameObject.Find("Monster Token");
-        player = FindObjectOfType<PlayerController>().GetComponent<CharMotor>();
+		player = FindObjectOfType<PlayerController>().GetComponent<CharMotor>();
 		audio = GetComponent<AudioSource>();
         Mtr = GetComponent<CharMotor>();
         Anim = GetComponentInChildren<Animation>();
@@ -101,13 +108,15 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
         MaxVisRange = Mathf.Max(MaxVisRange, Vis.Radius);
 	}
 
-    void Start() {
+	void Start()
+	{
 
-        DefSpeed = Mtr.Speed;
-        if(randomPatrol) {
-            i = Random.Range(0, patrolRoute.Count);
-        }
-    }
+		DefSpeed = Mtr.Speed;
+		if (randomPatrol)
+		{
+			i = Random.Range(0, patrolRoute.Count);
+		}
+	}
 	void Update()
 	{
 
@@ -134,8 +143,8 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
             }
         }
 
-        Rep.enabled = true;
-        Mtr.Speed = DefSpeed;
+		Rep.enabled = true;
+		Mtr.Speed = DefSpeed;
 		switch (curState)
 		{
 			case alertStatus.calm:
@@ -156,7 +165,7 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 				{
 					//Debug.Log("countdown done");
 					//startTime = Time.time;
-					changeStatus(alertStatus.alert);			
+					changeStatus(alertStatus.alert);
 				}
 				else
 				{
@@ -194,9 +203,12 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 					changeStatus(alertStatus.calm);
 					alertOtherCol.enabled = false;
 				}
-				break;	
+				break;
 			case alertStatus.alert:
 				alert();
+				break;
+			case alertStatus.flee:
+				regenHP();
 				break;
 			default:
 				break;
@@ -209,23 +221,29 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 	{
 		//Debug.Log("patrol");
 		Mtr.setTarget(patrolRoute[i].position);
-        float leeway = 1.2f; //jim - bbigger leeway = stuck less
+		float leeway = 1.2f; //jim - bbigger leeway = stuck less
 		if (Mtr.Trnsfrm.position.x > patrolRoute[i].position.x - leeway && Mtr.Trnsfrm.position.x < patrolRoute[i].position.x + leeway)
 		{
 			if (Mtr.Trnsfrm.position.y > patrolRoute[i].position.y - leeway && Mtr.Trnsfrm.position.y < patrolRoute[i].position.y + leeway)
 			{
 
-                if(randomPatrol) {
-                    i = Random.Range(0, patrolRoute.Count);
-                } else {
-                    if(i + 1 == patrolRoute.Count) {
-                        //Debug.Log("change: full rotation");
-                        i = 0;
-                    } else {
-                        //Debug.Log("change: next point");
-                        i++;
-                    }
-                }
+				if (randomPatrol)
+				{
+					i = Random.Range(0, patrolRoute.Count);
+				}
+				else
+				{
+					if (i + 1 == patrolRoute.Count)
+					{
+						//Debug.Log("change: full rotation");
+						i = 0;
+					}
+					else
+					{
+						//Debug.Log("change: next point");
+						i++;
+					}
+				}
 				Mtr.setTarget(patrolRoute[i].position);
 			}
 		}
@@ -248,14 +266,14 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 					float angle = Mathf.Atan2(vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg;
 					Quaternion q = Quaternion.AngleAxis(angle - 180, Vector3.forward);
 					transform.rotation = Quaternion.Slerp(transform.rotation, q, Time.deltaTime * 10);
-				}				
+				}
 			}
 		}
 	}
 
 	//if can see player either go to alert or investigate
 	void spotted()
-	{   
+	{
 		
         Mtr.Target = player; //look at player
         Mtr.Speed = 0; //stop walking
@@ -311,7 +329,7 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 	//watch the person who went to investigate. if they die then go on alert 
 	//done
 	void watch()
-	{	
+	{
 		//stop moving
 		Mtr.setTarget(new Vector2(Mtr.Trnsfrm.position.x, Mtr.Trnsfrm.position.y));
 		//watch target 
@@ -321,9 +339,13 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 		transform.rotation = Quaternion.Slerp(transform.rotation, q, Time.deltaTime * 10);
 	}
 
- 
+
 	void alert()
 	{
+		if (Health < 50)
+		{
+			changeStatus(alertStatus.flee);
+		}
 		if (type == charType.villager)
 		{
 			//Debug.Log("go to safe zone");
@@ -337,38 +359,43 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
                 return;
             }
 
-            Mtr.Target = Threat;
-    
-            var vec = ((Vector2)Threat.Trnsfrm.position - (Vector2)Mtr.Trnsfrm.position);
-            var mag = vec.magnitude; vec /= mag;
-            //Debug.Log("mag " + mag + "  dt " + Vector2.Dot(vec, -RotObj.transform.up));
-            if(Vector2.Dot(vec, -Mtr.RotObj.transform.up) > 0.8f) {
-                bool inRange = true;
-                foreach(var a in Attacks) {
-                    if(mag > a.Range) {
-                        inRange = false;
-                        continue;
-                    }
-                    if(Time.fixedTime - a.LastAttack > a.Duration + a.RoF) {
-                        CurAttack = a;
-                        if(Anim != null) Anim.Play();
-                        a.LastAttack = Time.fixedTime;
-                        a.LastTarget = Threat;
+			Mtr.Target = Threat;
 
-                        Vis.enabled = false;
-                        break;
-                    }
-                }
-                if(inRange) {
-                    Mtr.Speed = 0;
-                    Rep.enabled = true;
-                }
-            }
-            /*if(canAttack == false) {
-                if(Time.time - attackTime > attackRateOfFire) {
-                    canAttack = true;
-                }
-            }
+			var vec = ((Vector2)Threat.Trnsfrm.position - (Vector2)Mtr.Trnsfrm.position);
+			var mag = vec.magnitude; vec /= mag;
+			//Debug.Log("mag " + mag + "  dt " + Vector2.Dot(vec, -RotObj.transform.up));
+			if (Vector2.Dot(vec, -Mtr.RotObj.transform.up) > 0.8f)
+			{
+				bool inRange = true;
+				foreach (var a in Attacks)
+				{
+					if (mag > a.Range)
+					{
+						inRange = false;
+						continue;
+					}
+					if (Time.fixedTime - a.LastAttack > a.Duration + a.RoF)
+					{
+						CurAttack = a;
+						if (Anim != null) Anim.Play();
+						a.LastAttack = Time.fixedTime;
+						a.LastTarget = Threat;
+
+						Vis.enabled = false;
+						break;
+					}
+				}
+				if (inRange)
+				{
+					Mtr.Speed = 0;
+					Rep.enabled = true;
+				}
+			}
+			/*if(canAttack == false) {
+				if(Time.time - attackTime > attackRateOfFire) {
+					canAttack = true;
+				}
+			}
 			//follow and attack player
 			Mtr.setTarget(player.transform.position);
 			if (Vector2.Distance(Mtr.Trnsfrm.position, player.transform.position) <= range && canAttack == true)
@@ -377,13 +404,14 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 				player.GetComponent<PlayerData>().IncreaseHP(Damage);
 				canAttack = false;
 			}
-            */
+			*/
 		}
 	}
-	
-    public void ensureStatus(alertStatus newStatus) {
-        if(curState != newStatus) changeStatus(newStatus);
-    }
+
+	public void ensureStatus(alertStatus newStatus)
+	{
+		if (curState != newStatus) changeStatus(newStatus);
+	}
 	public void changeStatus(alertStatus newStatus)
 	{
 
@@ -421,6 +449,10 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 			audio.Play();
 			//alert();
 		}
+		else if (newStatus == alertStatus.flee)
+		{
+			Mtr.setTarget(safeZone);
+		}
 	}
 
 	public void changeStatus(alertStatus newStatus, GameObject watchThis)
@@ -453,7 +485,7 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 			//Debug.Log(lootAtPoint);
 			changeStatus(alertStatus.alert);
 
-            newThreat(player);
+			newThreat(player);
 		}
 	}
 
@@ -470,15 +502,17 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 	} */
 
 
-    public void recvDamage(int dmg, CharMotor src) {
-       // if(this == null) return;
-        if((Health -= dmg) <= 0) Destroy(gameObject);
-        else spotted(src);
-    }
+	public void recvDamage(int dmg, CharMotor src)
+	{
+		// if(this == null) return;
+		if ((Health -= dmg) <= 0) Destroy(gameObject);
+		else spotted(src);
+	}
 
 
-    void newThreat(CharMotor mtr) {
-        if(mtr == Threat) return;
+	void newThreat(CharMotor mtr)
+	{
+		if (mtr == Threat) return;
 
         if(Threat != null) {
             if((Threat.Trnsfrm.position - Mtr.Trnsfrm.position).sqrMagnitude < (Mtr.Trnsfrm.position - mtr.Trnsfrm.position).sqrMagnitude)
@@ -489,12 +523,30 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
     public void spotted(CharMotor mtr) { //for enemies
         Debug.Log("spotted " + mtr );
 
-        newThreat(mtr);
-        ensureStatus(alertStatus.alert);
+		newThreat(mtr);
+		ensureStatus(alertStatus.alert);
         Spotted = true;
     }
 
-    public void check(CharMotor plyr) {
+
+	void regenHP()
+	{
+		if (Health >= 100)
+		{
+			changeStatus(alertStatus.calm);
+		}
+		else if (canRegen == true)
+		{
+			regenCoolDown = Time.time;
+			Health++;
+			canRegen = false;
+		}
+		else if (Time.time - regenCoolDown > 1)
+		{
+			canRegen = true;
+		}
+	}
+	public void check(CharMotor plyr) {
 
         if(Hostile) return;
         if(curState == alertStatus.calm
