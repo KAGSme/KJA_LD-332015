@@ -260,7 +260,7 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 		//Debug.Log(i);
 	}
 
-	void stationary() //jim - wtf..?
+	void stationary() //jim - wtf..? alex - its when they stand still they need to return to there original position.
 	{
 		//Debug.Log("stat 1");
 		if (Mtr.Trnsfrm.position.x > patrolRoute[0].position.x - 0.1 && Mtr.Trnsfrm.position.x < patrolRoute[0].position.x + 0.1)
