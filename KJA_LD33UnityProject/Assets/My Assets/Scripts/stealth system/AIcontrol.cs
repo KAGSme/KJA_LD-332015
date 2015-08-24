@@ -74,10 +74,8 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 	Attack CurAttack;
 
 
-	public AudioClip audioCalm;
-	public AudioClip audioSpotted;
-	public AudioClip audioAlarm;
-	AudioSource audio;
+	
+	static stealthSounds audio;
 
 	CharMotor Threat;
 	[HideInInspector]
@@ -100,7 +98,7 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 	{
 		//player = GameObject.Find("Monster Token");
 		player = FindObjectOfType<PlayerController>().GetComponent<CharMotor>();
-		audio = GetComponent<AudioSource>();
+		audio = FindObjectOfType<stealthSounds>().GetComponent<stealthSounds>();
         Mtr = GetComponent<CharMotor>();
         Anim = GetComponentInChildren<Animation>();
         Vis = GetComponentInChildren<Vision>();
@@ -474,8 +472,7 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 		Debug.Log("new state: " + newStatus);
 		if (curState == alertStatus.calm)
 		{
-			audio.clip = audioCalm;
-			audio.Play();
+			audio.playCalm();
 			//canAttack = true;
 			if (isStationary == true)
 			{
@@ -484,8 +481,7 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 		}
 		else if (newStatus == alertStatus.spotted)
 		{
-			audio.clip = audioSpotted;
-			audio.Play();
+			audio.playSpotted();
 			//spotted();
 		}
 		else if (newStatus == alertStatus.inspect)
@@ -500,8 +496,7 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
                 Vis.Layers = HostileMask;
                 GetComponentInChildren<SpriteRenderer>().color = Color.red;
             }
-			audio.clip = audioAlarm;
-			audio.Play();
+			audio.playAlarm();
 			//alert();
 		}
 		else if (newStatus == alertStatus.flee)
