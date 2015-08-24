@@ -17,8 +17,9 @@ public class PlayerAbilities : MonoBehaviour {
     float invisibleInit;
     Color color;
     public float kaboomRadius = 5;
-    public int dmg = 50;
-    
+    public int kaboomDmg = 50;
+    public LayerMask enemyLayers;
+    public GameObject kaboomParticles;
 
 	// Use this for initialization
 	void Start () {
@@ -65,18 +66,21 @@ public class PlayerAbilities : MonoBehaviour {
         {
             if ((invisibleTimer -= Time.deltaTime) <= 0) pData.isInvisible = false;
         }
-        if (Input.GetButtonDown("Ability3") && pData.Mana >= abilityCost[3] && pData.Stamina >= abilityCost[3])
+        if (Input.GetButtonDown("Ability4") && pData.Mana >= abilityCost[3] && pData.Stamina >= abilityCost[3])
         {
-            var colls = Physics2D.OverlapCircleAll(transform.position, kaboomRadius);
+            pData.IncreaseMana(-abilityCost[3]);
+            pData.IncreaseStamina(-abilityCost[3]);
+            var particles = (GameObject)Instantiate(kaboomParticles, transform.position, Quaternion.identity);
+            var colls = Physics2D.OverlapCircleAll(transform.position, kaboomRadius, enemyLayers);
             foreach (var c in colls)
             {
                 if (c.gameObject.layer == LayerMask.NameToLayer("Enemy"))
                 {
-                    c.gameObject.GetComponent<CharMotor>().applyDamage(dmg, GetComponent<CharMotor>());
+                    c.gameObject.GetComponent<CharMotor>().applyDamage(kaboomDmg, GetComponent<CharMotor>());
                 }
                 if (c.gameObject.layer == LayerMask.NameToLayer("villager"))
                 {
-                    c.gameObject.GetComponent<CharMotor>().applyDamage(-dmg, GetComponent<CharMotor>());
+                    c.gameObject.GetComponent<CharMotor>().applyDamage(-kaboomDmg, GetComponent<CharMotor>());
                 }
             }
         }
