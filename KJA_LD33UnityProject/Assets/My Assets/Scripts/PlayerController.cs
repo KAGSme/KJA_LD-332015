@@ -7,6 +7,7 @@ public class PlayerController : MonoBehaviour {
 
     //float acceleration = 100;
     //float maxSpeed = 100;
+    public LayerMask AttackMask;
     public float deadzone = 3f;
     Rigidbody2D rigidbodyThis;
     Vector3 mouseDirection;
@@ -52,13 +53,13 @@ public class PlayerController : MonoBehaviour {
         if(CurAttack != null) {
             if(Motor.Target == CurAttack.LastTarget && Motor.Target != null) {
                 var ai = Motor.Target.GetComponent<AIcontrol>();
+                if( ai != null )
+                    foreach(var v in Physics2D.OverlapCircleAll(Motor.Trnsfrm.position, AIcontrol.MaxVisRange, VilagerLayerMask)) {
+                        var aic = v.GetComponent<AIcontrol>();
+                        if(aic == ai || aic == null) continue;
 
-                foreach(var v in Physics2D.OverlapCircleAll(Motor.Trnsfrm.position, AIcontrol.MaxVisRange, VilagerLayerMask)) {
-                    var aic = v.GetComponent<AIcontrol>();
-                    if(aic == ai || aic == null) continue;
-
-                    aic.check(Motor);
-                }
+                        aic.check(Motor);
+                    }
             }
             if(Time.fixedTime - CurAttack.LastAttack > CurAttack.Duration) {
                 //Debug.Log("dmg " + CurAttack.Damage);
@@ -89,7 +90,7 @@ public class PlayerController : MonoBehaviour {
                     var p = mr.GetPoint(intr);
                     CharMotor trgt = null;
 
-                    var col = Physics2D.OverlapPoint(p);
+                    var col = Physics2D.OverlapCircle(p, 0.25f, AttackMask );
                     if(col && (trgt = col.GetComponent<CharMotor>()) != null) {
                         Motor.Target = trgt;
                     } else
@@ -110,8 +111,8 @@ public class PlayerController : MonoBehaviour {
                         }
                         if(Time.fixedTime - a.LastAttack > a.Duration + a.RoF) {
                             CurAttack = a;
-                            //var anim = RotObj.GetComponent<Animation>();
-                            //if(anim != null) anim.Play();
+                            var anim = Motor.RotObj.GetComponent<Animation>();
+                            if(anim != null) anim.Play();
                             a.LastAttack = Time.fixedTime;
                             a.LastTarget = Motor.Target;
 
