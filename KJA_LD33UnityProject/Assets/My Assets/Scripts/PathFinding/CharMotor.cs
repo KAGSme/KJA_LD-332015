@@ -34,6 +34,9 @@ public class CharMotor : MonoBehaviour {
     [HideInInspector]
     public Vector2 DesVec = Vector2.zero;
 
+    bool isInvincible;
+    public float invincibleTimerInit = 1;
+    float invincibleTimer = 1;
 
     public interface DamageReceiver {
         void recvDamage( int dmg, CharMotor src );
@@ -46,7 +49,7 @@ public class CharMotor : MonoBehaviour {
 
     public void applyDamage(int dmg, CharMotor src) {
         //if(DamRecv != null) 
-        DamRecv.recvDamage(dmg, src);
+        if (!isInvincible) { isInvincible = true; DamRecv.recvDamage(dmg, src); }
     }
 
     public void setTarget( Vector2 at ) {
@@ -67,6 +70,7 @@ public class CharMotor : MonoBehaviour {
         NavMsh = FindObjectOfType<NavMesh>();
         TargetNode = CurNode = NavMsh.findNode(Trnsfrm.position, CurNode);
         TargetP = ValidPos = Trnsfrm.position;
+        invincibleTimer = invincibleTimerInit;
     }
 
 
@@ -198,7 +202,15 @@ public class CharMotor : MonoBehaviour {
         vec = tPos - cPos;
 
         DesVec = vec;
-       
+
+        if (isInvincible)
+        {
+            if ((invincibleTimer -= Time.deltaTime) <= 0)
+            {
+                isInvincible = false;
+                invincibleTimer = invincibleTimerInit;
+            }
+        }
     }
 
     void FixedUpdate() {
