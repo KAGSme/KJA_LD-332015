@@ -22,41 +22,92 @@ public enum charType
 	villager
 }
 
-public class AIcontrol : MonoBehaviour {
+public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receiver {
 
+    public int Health = 100;
 	public alertStatus curState;
 	public CircleCollider2D alertOtherCol;
 	float startTime;
 	public float inspectToAlarmTime;
 	public float inspectToCalmTime;
 	public List<PatrolMarker> patrolRoute;
-	int i = 0;
+	int i = 0;  //worst variable naming of all time
 	Vector3 lootAtPoint;
 	public charType type;
 	public Vector3 safeZone;
-	public bool isStationary;
-	///static GameObject player;  eww..
-	public float attackRateOfFire;
-	public int Damage;
+    public bool isStationary;
+    public bool randomPatrol = false; //jim -- was too lazy to make several patrol paths
+    static CharMotor player;
+   /* public float attackRateOfFire;
+    public int Damage;
 	public float range;
 	bool canAttack;
-	float attackTime;
+	float attackTime; */
+
+    [System.Serializable]
+    public class Attack {
+        public float Range = 1;
+        public float RoF = 1;
+        public int Damage = 1;
+        public float Duration = 0.3f;
+        [HideInInspector]
+        public float LastAttack;
+        [HideInInspector]
+        public CharMotor LastTarget;
+    };
+
+    public List<Attack> Attacks;
+
+    Attack CurAttack;
+
+
 	public AudioClip audioCalm;
 	public AudioClip audioSpotted;
 	public AudioClip audioAlarm;
 	AudioSource audio;
 
-    CharMotor Mtr;
+    CharMotor Threat;
+    [HideInInspector] public CharMotor Mtr;
+    Vision Vis;
+    Repulsor Rep;
+    Animation Anim;
+
+    float DefSpeed;
 
 	void Awake()
 	{
 		//player = GameObject.Find("Monster Token");
+        player = FindObjectOfType<PlayerController>().GetComponent<CharMotor>();
 		audio = GetComponent<AudioSource>();
         Mtr = GetComponent<CharMotor>();
+        Anim = GetComponentInChildren<Animation>();
+        Vis = GetComponentInChildren<Vision>();
+        Rep = GetComponent<Repulsor>();
+        Vis.Recv = this;
 	}
 
+    void Start() {
+
+        DefSpeed = Mtr.Speed;
+        if(randomPatrol) {
+            i = Random.Range(0, patrolRoute.Count);
+        }
+    }
 	void Update()
 	{
+
+        if(CurAttack != null) {
+            // DesVec = Vector2.zero;
+            if(Time.fixedTime - CurAttack.LastAttack > CurAttack.Duration) {
+                //Debug.Log("dmg " + CurAttack.Damage);
+                if(Mtr.Target == CurAttack.LastTarget && Mtr.Target != null ) Mtr.Target.applyDamage(CurAttack.Damage, Mtr);
+                CurAttack = null;
+                Vis.enabled = true;
+            }
+        }
+
+        Rep.enabled = true;
+        Mtr.Speed = DefSpeed;
 		switch (curState)
 		{
 			case alertStatus.calm:
@@ -116,13 +167,6 @@ public class AIcontrol : MonoBehaviour {
 				break;	
 			case alertStatus.alert:
 				alert();
-				if (canAttack == false)
-				{
-					if (Time.time - attackTime > attackRateOfFire)
-					{
-						canAttack = true;
-					}
-				}
 				break;
 			default:
 				break;
@@ -135,39 +179,42 @@ public class AIcontrol : MonoBehaviour {
 	{
 		//Debug.Log("patrol");
 		Mtr.setTarget(patrolRoute[i].position);
-		if (this.transform.position.x > patrolRoute[i].position.x - 0.1 && this.transform.position.x < patrolRoute[i].position.x + 0.1)
+        float leeway = 1.2f; //jim - bbigger leeway = stuck less
+		if (Mtr.Trnsfrm.position.x > patrolRoute[i].position.x - leeway && Mtr.Trnsfrm.position.x < patrolRoute[i].position.x + leeway)
 		{
-			if (this.transform.position.y > patrolRoute[i].position.y - 0.1 && this.transform.position.y < patrolRoute[i].position.y + 0.1)
+			if (Mtr.Trnsfrm.position.y > patrolRoute[i].position.y - leeway && Mtr.Trnsfrm.position.y < patrolRoute[i].position.y + leeway)
 			{
-				if (i+1 == patrolRoute.Count)
-				{
-					//Debug.Log("change: full rotation");
-					i = 0;
-				}
-				else
-				{
-					//Debug.Log("change: next point");
-					i++;
-				}
+
+                if(randomPatrol) {
+                    i = Random.Range(0, patrolRoute.Count);
+                } else {
+                    if(i + 1 == patrolRoute.Count) {
+                        //Debug.Log("change: full rotation");
+                        i = 0;
+                    } else {
+                        //Debug.Log("change: next point");
+                        i++;
+                    }
+                }
 				Mtr.setTarget(patrolRoute[i].position);
 			}
 		}
 		//Debug.Log(i);
 	}
 
-	void stationary()
+	void stationary() //jim - wtf..?
 	{
-		Debug.Log("stat 1");
-		if (this.transform.position.x > patrolRoute[0].position.x - 0.1 && this.transform.position.x < patrolRoute[0].position.x + 0.1)
+		//Debug.Log("stat 1");
+		if (Mtr.Trnsfrm.position.x > patrolRoute[0].position.x - 0.1 && Mtr.Trnsfrm.position.x < patrolRoute[0].position.x + 0.1)
 		{
-			Debug.Log("stat 2");
-			if (this.transform.position.y > patrolRoute[0].position.y - 0.1 && this.transform.position.y < patrolRoute[0].position.y + 0.1)
+			//Debug.Log("stat 2");
+			if (Mtr.Trnsfrm.position.y > patrolRoute[0].position.y - 0.1 && Mtr.Trnsfrm.position.y < patrolRoute[0].position.y + 0.1)
 			{
-				Debug.Log("stat 3");
-				if (this.transform.rotation.z != patrolRoute[0].lookDirection.z)
+				//Debug.Log("stat 3");
+				if (Mtr.Trnsfrm.rotation.z != patrolRoute[0].lookDirection.z)
 				{
-					Debug.Log("stat 4");
-					Vector3 vectorToTarget = patrolRoute[0].lookDirection - this.transform.position;
+					//Debug.Log("stat 4");
+					Vector3 vectorToTarget = patrolRoute[0].lookDirection - Mtr.Trnsfrm.position;
 					float angle = Mathf.Atan2(vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg;
 					Quaternion q = Quaternion.AngleAxis(angle - 180, Vector3.forward);
 					transform.rotation = Quaternion.Slerp(transform.rotation, q, Time.deltaTime * 10);
@@ -177,14 +224,13 @@ public class AIcontrol : MonoBehaviour {
 	}
 
 	//if can see player either go to alert or investigate
-
 	void spotted()
 	{   
 		//stop walking
-		GetComponent<CharMotor>().setTarget(new Vector2(this.transform.position.x, this.transform.position.y));
+		Mtr.setTarget(new Vector2(Mtr.Trnsfrm.position.x, Mtr.Trnsfrm.position.y));
 		//look at player
 		Debug.Log(lootAtPoint);
-		Vector3 vectorToTarget = lootAtPoint - this.transform.position;
+		Vector3 vectorToTarget = lootAtPoint - Mtr.Trnsfrm.position;
 		float angle = Mathf.Atan2(vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg;
 		Quaternion q = Quaternion.AngleAxis(angle - 180, Vector3.forward);
 		transform.rotation = Quaternion.Slerp(transform.rotation, q, Time.deltaTime * 10);
@@ -206,7 +252,7 @@ public class AIcontrol : MonoBehaviour {
 	void watch()
 	{	
 		//stop moving
-		Mtr.setTarget(new Vector2(this.transform.position.x, this.transform.position.y));
+		Mtr.setTarget(new Vector2(Mtr.Trnsfrm.position.x, Mtr.Trnsfrm.position.y));
 		//watch target 
 		Vector3 vectorToTarget = lootAtPoint - transform.position;
 		float angle = Mathf.Atan2(vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg;
@@ -214,6 +260,7 @@ public class AIcontrol : MonoBehaviour {
 		transform.rotation = Quaternion.Slerp(transform.rotation, q, Time.deltaTime * 10);
 	}
 
+ 
 	void alert()
 	{
 		if (type == charType.villager)
@@ -223,27 +270,69 @@ public class AIcontrol : MonoBehaviour {
 		}
 		else if (type == charType.guard)
 		{
-            Debug.LogError("err");
+           // Debug.Log(" alert " + Threat);
+            if( Threat == null ) {
+                changeStatus( alertStatus.calm ); 
+                return;
+            }
+
+            Mtr.Target = Threat;
+    
+            var vec = ((Vector2)Threat.Trnsfrm.position - (Vector2)Mtr.Trnsfrm.position);
+            var mag = vec.magnitude; vec /= mag;
+            //Debug.Log("mag " + mag + "  dt " + Vector2.Dot(vec, -RotObj.transform.up));
+            if(Vector2.Dot(vec, -Mtr.RotObj.transform.up) > 0.8f) {
+                bool inRange = true;
+                foreach(var a in Attacks) {
+                    if(mag > a.Range) {
+                        inRange = false;
+                        continue;
+                    }
+                    if(Time.fixedTime - a.LastAttack > a.Duration + a.RoF) {
+                        CurAttack = a;
+                        if(Anim != null) Anim.Play();
+                        a.LastAttack = Time.fixedTime;
+                        a.LastTarget = Threat;
+
+                        Vis.enabled = false;
+                        break;
+                    }
+                }
+                if(inRange) {
+                    Mtr.Speed = 0;
+                    Rep.enabled = true;
+                }
+            }
+            /*if(canAttack == false) {
+                if(Time.time - attackTime > attackRateOfFire) {
+                    canAttack = true;
+                }
+            }
 			//follow and attack player
-			/*Mtr.setTarget(player.transform.position);
-			if (Vector2.Distance(this.transform.position, player.transform.position) <= range && canAttack == true)
+			Mtr.setTarget(player.transform.position);
+			if (Vector2.Distance(Mtr.Trnsfrm.position, player.transform.position) <= range && canAttack == true)
 			{
 				//deal damage
-				//player.GetComponent<PlayerData>().IncreaseHP(Damage);
+				player.GetComponent<PlayerData>().IncreaseHP(Damage);
 				canAttack = false;
-			}*/
+			}
+            */
 		}
 	}
 	
+    public void ensureStatus(alertStatus newStatus) {
+        if(curState != newStatus) changeStatus(newStatus);
+    }
 	public void changeStatus(alertStatus newStatus)
 	{
+
 		curState = newStatus;
-		Debug.Log("new state: " + newStatus);
+		//Debug.Log("new state: " + newStatus);
 		if (curState == alertStatus.calm)
 		{
 			audio.clip = audioCalm;
 			audio.Play();
-			canAttack = true;
+			//canAttack = true;
 			if (isStationary == true)
 			{
 				Mtr.setTarget(patrolRoute[0].position);
@@ -282,6 +371,7 @@ public class AIcontrol : MonoBehaviour {
 
 	public void seePlayer(Transform playerPos)
 	{
+
 		if (curState == alertStatus.calm)
 		{
 			startTime = Time.time;
@@ -295,6 +385,8 @@ public class AIcontrol : MonoBehaviour {
 			lootAtPoint = playerPos.position;
 			//Debug.Log(lootAtPoint);
 			changeStatus(alertStatus.alert);
+
+            newThreat(player);
 		}
 	}
 
@@ -310,4 +402,28 @@ public class AIcontrol : MonoBehaviour {
 		}
 	}
 
+
+    public void recvDamage(int dmg, CharMotor src) {
+       // if(this == null) return;
+        if((Health -= dmg) <= 0) Destroy(gameObject);
+        else spotted(src);
+    }
+
+
+    void newThreat(CharMotor mtr) {
+        if(mtr == Threat) return;
+
+        if(Threat != null) {
+            if((Threat.Trnsfrm.position - Mtr.Trnsfrm.position).sqrMagnitude < (Mtr.Trnsfrm.position - mtr.Trnsfrm.position).sqrMagnitude)
+                return;
+        }
+        Threat = mtr;
+    }
+    public void spotted(CharMotor mtr) { //for enemies
+        //Debug.Log("spotted " + mtr );
+
+        newThreat(mtr);
+        ensureStatus(alertStatus.alert);
+
+    }
 }

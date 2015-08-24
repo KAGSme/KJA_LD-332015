@@ -39,19 +39,19 @@ public class PlayerData : MonoBehaviour, CharMotor.DamageReceiver {
 
      public void IncreaseHP(int increase)
     {
-        hp += increase;
+        hp = Mathf.Clamp(hp+increase, 0, maxhp);
     }
 
      public void IncreaseMana(int increase)
      {
-        mana += increase;
+         mana = Mathf.Clamp(mana+increase, 0, maxMana);
     }
      public void IncreaseStamina(int increase)
     {
         stamina += increase;
     }
 
-     public void damage(int dmg, CharMotor src) {
+     public void recvDamage(int dmg, CharMotor src) {
          IncreaseHP(-dmg);
      }
 }

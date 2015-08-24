@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class Enemy : CharMotor, Vision.Receiver {
+public class Enemy : CharMotor, Vision.Receiver, CharMotor.DamageReceiver {
 
 
     public float SpeedWander = 2;
@@ -23,13 +23,16 @@ public class Enemy : CharMotor, Vision.Receiver {
     Attack CurAttack;
 
     Vision Vis;
+    Repulsor Rep;
 
     protected void Start() {
         Speed = SpeedWander;
         base.Start();
         //Target = FindObjectOfType<PlayerController>().Motor;
 
+        Rep = GetComponent<Repulsor>();
         Vis = GetComponentInChildren<Vision>();
+
         Vis.Recv = this;
 
         targetWP();
@@ -50,21 +53,22 @@ public class Enemy : CharMotor, Vision.Receiver {
     protected void Update() {
 
         //setTarget(FindObjectOfType<PlayerController>().transform.position);
-
+        Rep.enabled = true;
         if( CurAttack != null ) {
            // DesVec = Vector2.zero;
             if(Time.fixedTime - CurAttack.LastAttack > CurAttack.Duration) {
                 //Debug.Log("dmg " + CurAttack.Damage);
 
-                if(Target == CurAttack.LastTarget) Target.DamRecv.damage(CurAttack.Damage,this);
+                if(Target == CurAttack.LastTarget && Target != null) Target.applyDamage(CurAttack.Damage,this);
                 CurAttack = null;
                 Vis.enabled = true;
-            }
+
+            } else Rep.enabled = false;
         } else if(Target != null) {
             Speed = SpeedWander;
             var vec = ((Vector2)Target.Trnsfrm.position - (Vector2)Trnsfrm.position);
             var mag = vec.magnitude; vec /= mag;
-            Debug.Log("mag " + mag + "  dt " + Vector2.Dot(vec, -RotObj.transform.up));
+            //Debug.Log("mag " + mag + "  dt " + Vector2.Dot(vec, -RotObj.transform.up));
             if(Vector2.Dot(vec, -RotObj.transform.up) > 0.8f) {
                 bool inRange = true;
                 foreach(var a in Attacks) {
@@ -83,7 +87,10 @@ public class Enemy : CharMotor, Vision.Receiver {
                         break;
                     }
                 }
-                if(inRange) Speed = 0;
+                if(inRange) {
+                    Speed = 0;
+                    Rep.enabled = false;
+                }
             }
 
         } else {
@@ -98,8 +105,8 @@ public class Enemy : CharMotor, Vision.Receiver {
     }
 
 
-    void Vision.Receiver.spotted(CharMotor mtr) {
-
+    public void spotted(CharMotor mtr) {
+        if(mtr == Target) return;
         if(Target != null) {
             if((Target.Trnsfrm.position - Trnsfrm.position).sqrMagnitude < (mtr.Trnsfrm.position - Trnsfrm.position).sqrMagnitude)
                 return;
@@ -110,4 +117,11 @@ public class Enemy : CharMotor, Vision.Receiver {
     }
 
     //void OnDrawGizmos
+
+    public int Health = 20;
+    public void recvDamage(int dmg, CharMotor src) {
+        //if(this == null) return;
+        if((Health -= dmg) <= 0) Destroy(gameObject);
+        else spotted(src);
+    }
 }

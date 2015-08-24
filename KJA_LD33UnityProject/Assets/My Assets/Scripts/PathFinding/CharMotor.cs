@@ -35,13 +35,18 @@ public class CharMotor : MonoBehaviour {
 
 
     public interface DamageReceiver {
-        void damage( int dmg, CharMotor src );
+        void recvDamage( int dmg, CharMotor src );
     }
     // public GameObject Recv;
 
-    public DamageReceiver DamRecv;
+    DamageReceiver DamRecv;
 
-    Vector2 ValidPos; 
+    Vector2 ValidPos;
+
+    public void applyDamage(int dmg, CharMotor src) {
+        //if(DamRecv != null) 
+        DamRecv.recvDamage(dmg, src);
+    }
 
     public void setTarget( Vector2 at ) {
         Target = null;
@@ -198,14 +203,10 @@ public class CharMotor : MonoBehaviour {
     void FixedUpdate() {
 
         var mag = DesVec.magnitude;
-        if(mag > 0.1f) {
+        if(mag > 0.01f) {
             DesVec /= mag;
 
-            CurSpeed += Accel * Time.deltaTime;
-
             if(RotObj != null) {
-
-
                 var ang = Mathf.Atan2(DesVec.x, -DesVec.y) * Mathf.Rad2Deg;
 
                 var euler = RotObj.rotation.eulerAngles;
@@ -215,15 +216,22 @@ public class CharMotor : MonoBehaviour {
                 var dot = Vector2.Dot(DesVec, -RotObj.up);
 
                 if(dot < 0.2f) {
-                    CurSpeed = 0;
+                    CurSpeed = Speed * 0.2f;
                 } else {
-                    CurSpeed *= dot;
+                    CurSpeed *=Mathf.Min(1.0f, dot *2.5f );
                 }
             } else {
                 if(Vector2.Dot(Bdy.velocity.normalized, DesVec) < -0.1f) CurSpeed = 0;
             }
 
-            if(CurSpeed > Speed) CurSpeed = Speed;
+
+            if(mag < 1.0f) {
+                CurSpeed = Mathf.Lerp(CurSpeed, mag, Accel * Time.deltaTime);
+            } else {
+                CurSpeed += Accel * Time.deltaTime;
+                if(CurSpeed > Speed) CurSpeed = Speed;
+            }
+           
             Bdy.velocity = DesVec * CurSpeed;
         } else Bdy.velocity = Vector2.zero;
     }
