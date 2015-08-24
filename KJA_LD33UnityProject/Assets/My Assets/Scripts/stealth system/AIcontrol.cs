@@ -35,7 +35,7 @@ public class AIcontrol : MonoBehaviour {
 	public charType type;
 	public Vector3 safeZone;
 	public bool isStationary;
-	static GameObject player;
+	///static GameObject player;  eww..
 	public float attackRateOfFire;
 	public int Damage;
 	public float range;
@@ -46,10 +46,13 @@ public class AIcontrol : MonoBehaviour {
 	public AudioClip audioAlarm;
 	AudioSource audio;
 
+    CharMotor Mtr;
+
 	void Awake()
 	{
-		player = GameObject.Find("Monster Token");
+		//player = GameObject.Find("Monster Token");
 		audio = GetComponent<AudioSource>();
+        Mtr = GetComponent<CharMotor>();
 	}
 
 	void Update()
@@ -63,7 +66,7 @@ public class AIcontrol : MonoBehaviour {
 				}
 				if (isStationary == true)
 				{
-					Debug.Log("stat 0");
+					//Debug.Log("stat 0");
 					stationary();
 				}
 				break;
@@ -83,12 +86,12 @@ public class AIcontrol : MonoBehaviour {
 					Debug.DrawLine(transform.position, lootAtPoint, Color.red);
 					if (!hit)
 					{
-						Debug.Log("no hit");
+						//Debug.Log("no hit");
 						changeStatus(alertStatus.inspect);
 					}
 					else
 					{
-						Debug.Log("hit" + hit.collider.gameObject.name);
+						//Debug.Log("hit" + hit.collider.gameObject.name);
 					}
 				}
 				break;
@@ -131,7 +134,7 @@ public class AIcontrol : MonoBehaviour {
 	void Patrol()
 	{
 		//Debug.Log("patrol");
-		this.GetComponent<CharMotor>().setTarget(patrolRoute[i].position);
+		Mtr.setTarget(patrolRoute[i].position);
 		if (this.transform.position.x > patrolRoute[i].position.x - 0.1 && this.transform.position.x < patrolRoute[i].position.x + 0.1)
 		{
 			if (this.transform.position.y > patrolRoute[i].position.y - 0.1 && this.transform.position.y < patrolRoute[i].position.y + 0.1)
@@ -146,7 +149,7 @@ public class AIcontrol : MonoBehaviour {
 					//Debug.Log("change: next point");
 					i++;
 				}
-				this.GetComponent<CharMotor>().setTarget(patrolRoute[i].position);
+				Mtr.setTarget(patrolRoute[i].position);
 			}
 		}
 		//Debug.Log(i);
@@ -195,7 +198,7 @@ public class AIcontrol : MonoBehaviour {
 		//alert other enemys
 		alertOtherCol.enabled = true;
 		//move to players last know location
-		this.GetComponent<CharMotor>().setTarget(lootAtPoint);	
+		Mtr.setTarget(lootAtPoint);	
 	}
 
 	//watch the person who went to investigate. if they die then go on alert 
@@ -203,7 +206,7 @@ public class AIcontrol : MonoBehaviour {
 	void watch()
 	{	
 		//stop moving
-		this.GetComponent<CharMotor>().setTarget(new Vector2(this.transform.position.x, this.transform.position.y));
+		Mtr.setTarget(new Vector2(this.transform.position.x, this.transform.position.y));
 		//watch target 
 		Vector3 vectorToTarget = lootAtPoint - transform.position;
 		float angle = Mathf.Atan2(vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg;
@@ -216,18 +219,19 @@ public class AIcontrol : MonoBehaviour {
 		if (type == charType.villager)
 		{
 			//Debug.Log("go to safe zone");
-			this.GetComponent<CharMotor>().setTarget(safeZone);
+			Mtr.setTarget(safeZone);
 		}
 		else if (type == charType.guard)
 		{
+            Debug.LogError("err");
 			//follow and attack player
-			this.GetComponent<CharMotor>().setTarget(player.transform.position);
+			/*Mtr.setTarget(player.transform.position);
 			if (Vector2.Distance(this.transform.position, player.transform.position) <= range && canAttack == true)
 			{
 				//deal damage
-				player.GetComponent<PlayerData>().IncreaseHP(Damage);
+				//player.GetComponent<PlayerData>().IncreaseHP(Damage);
 				canAttack = false;
-			}
+			}*/
 		}
 	}
 	
@@ -242,7 +246,7 @@ public class AIcontrol : MonoBehaviour {
 			canAttack = true;
 			if (isStationary == true)
 			{
-				this.GetComponent<CharMotor>().setTarget(patrolRoute[0].position);
+				Mtr.setTarget(patrolRoute[0].position);
 			}
 		}
 		else if (newStatus == alertStatus.spotted)

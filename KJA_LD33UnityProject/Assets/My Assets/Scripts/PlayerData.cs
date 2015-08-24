@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class PlayerData : MonoBehaviour {
+public class PlayerData : MonoBehaviour, CharMotor.DamageReceiver {
 
     float hp;
     [Range(1,600)]
@@ -50,4 +50,8 @@ public class PlayerData : MonoBehaviour {
     {
         stamina += increase;
     }
+
+     public void damage(int dmg, CharMotor src) {
+         IncreaseHP(-dmg);
+     }
 }

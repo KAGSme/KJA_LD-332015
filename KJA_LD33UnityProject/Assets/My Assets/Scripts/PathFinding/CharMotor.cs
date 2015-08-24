@@ -34,6 +34,13 @@ public class CharMotor : MonoBehaviour {
     public Vector2 DesVec = Vector2.zero;
 
 
+    public interface DamageReceiver {
+        void damage( int dmg, CharMotor src );
+    }
+    // public GameObject Recv;
+
+    public DamageReceiver DamRecv;
+
     Vector2 ValidPos; 
 
     public void setTarget( Vector2 at ) {
@@ -47,6 +54,7 @@ public class CharMotor : MonoBehaviour {
     void Awake() {
         Trnsfrm = transform;
         Bdy = GetComponent<Rigidbody2D>();
+        DamRecv = GetComponent<DamageReceiver>();
     }
     protected void Start() {
 //        Target = FindObjectOfType<PlayerController>();
