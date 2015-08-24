@@ -37,7 +37,7 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 	int i = 0;  //worst variable naming of all time
 	Vector3 lootAtPoint;
 	public charType type;
-	public Vector3 safeZone;
+	//public Vector3 safeZone;
     public bool isStationary;
     public bool randomPatrol = false; //jim -- was too lazy to make several patrol paths
 
@@ -137,10 +137,10 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
             // DesVec = Vector2.zero;
             if(Time.fixedTime - CurAttack.LastAttack > CurAttack.Duration) {
                 //Debug.Log("dmg " + CurAttack.Damage);
-                if(Mtr.Target == CurAttack.LastTarget && Mtr.Target != null ) Mtr.Target.applyDamage(CurAttack.Damage, Mtr);
+                if(Mtr.Target == CurAttack.LastTarget && Mtr.Target != null) Mtr.Target.applyDamage(CurAttack.Damage, Mtr);
                 CurAttack = null;
                 Vis.enabled = true;
-            }
+            } 
         }
 
 		Rep.enabled = true;
@@ -345,11 +345,12 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 		if (Health < 50)
 		{
 			changeStatus(alertStatus.flee);
+            return;
 		}
 		if (type == charType.villager)
 		{
 			//Debug.Log("go to safe zone");
-			Mtr.setTarget(safeZone);
+            Mtr.setTarget(SafeZoneWP.getP());
 		}
 		else if (type == charType.guard)
 		{
@@ -388,7 +389,7 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 				if (inRange)
 				{
 					Mtr.Speed = 0;
-					Rep.enabled = true;
+					Rep.enabled = false;
 				}
 			}
 			/*if(canAttack == false) {
@@ -451,7 +452,7 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 		}
 		else if (newStatus == alertStatus.flee)
 		{
-			Mtr.setTarget(safeZone);
+            Mtr.setTarget(SafeZoneWP.getP());
 		}
 	}
 
@@ -521,7 +522,7 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
         Threat = mtr;
     }
     public void spotted(CharMotor mtr) { //for enemies
-        Debug.Log("spotted " + mtr );
+     //   Debug.Log("spotted " + mtr );
 
 		newThreat(mtr);
 		ensureStatus(alertStatus.alert);
@@ -530,7 +531,8 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 
 
 	void regenHP()
-	{
+	{   
+        
 		if (Health >= 100)
 		{
 			changeStatus(alertStatus.calm);
