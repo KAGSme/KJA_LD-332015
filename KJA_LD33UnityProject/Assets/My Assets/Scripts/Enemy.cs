@@ -106,6 +106,7 @@ public class Enemy : CharMotor, Vision.Receiver, CharMotor.DamageReceiver {
 
 
     public void spotted(CharMotor mtr) {
+        
         if(mtr == Target) return;
         if(Target != null) {
             if((Target.Trnsfrm.position - Trnsfrm.position).sqrMagnitude < (mtr.Trnsfrm.position - Trnsfrm.position).sqrMagnitude)
@@ -122,6 +123,6 @@ public class Enemy : CharMotor, Vision.Receiver, CharMotor.DamageReceiver {
     public void recvDamage(int dmg, CharMotor src) {
         //if(this == null) return;
         if((Health -= dmg) <= 0) Destroy(gameObject);
-        else spotted(src);
+        else if( src != null ) spotted(src);
     }
 }

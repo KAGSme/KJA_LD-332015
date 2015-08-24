@@ -148,71 +148,88 @@ public class NavMesh : MonoBehaviour {
 
         //this loop runs through all the islands (obstacles) and adds them in keyhole fashion to the current polygon 
         //  - adds two edges to and from a vert on the island from an outer vert
-        foreach(List<int> ni in islands) {
-            for(int i = vi.Count, pi = 0; i-- > 0; pi = i) {
+        for( ; islands.Count > 0; ) {
+            bool change = true;
+            for(int islI = islands.Count; islI-- > 0; ) {
+                List<int> ni = islands[islI];
+                // Debug.Log("vi.c " + vi.Count);
+                for(int i = vi.Count, pi = 0; i-- > 0; pi = i) {
 
-                int i2 = i - 1; if(i2 < 0) i2 += vi.Count;
-                int ai = vi[i];
-                Vector2 a = Verts[ai], c = Verts[vi[pi]], d = Verts[vi[i2]];
-                for(int j = ni.Count; j-- > 0; ) {
-                    var bi = ni[j];
-                    var b = Verts[bi];
-                    if(Util.sign(b, a, d) < 0) continue;
-                    if(Util.sign(c, a, b) < 0) continue;
+                    int i2 = i - 1; if(i2 < 0) i2 += vi.Count;
+                    int ai = vi[i];
+                    Vector2 a = Verts[ai], c = Verts[vi[pi]], d = Verts[vi[i2]];
+                    for(int j = ni.Count; j-- > 0; ) {
+                        var bi = ni[j];
+                        var b = Verts[bi];
+                        if(Util.sign(b, a, d) < 0) continue;
+                        if(Util.sign(c, a, b) < 0) continue;
 
-                    for(int k = ni.Count, l = 0; k-- > 0; l = k) {
-                        if(ni[l] == bi || ni[k] == bi) continue;
-                        if(Util.lineLineIntersect(a, b, Verts[ni[l]], Verts[ni[k]]))
-                            goto label_breakContinue1;
-                    }
-
-                    foreach(List<int> ii in islands) {
-                        if(ii == ni) continue;
-                        for(int k = ii.Count, l = 0; k-- > 0; l = k) {
-                            if(Util.lineLineIntersect(a, b, Verts[ii[l]], Verts[ii[k]]))
+                        for(int k = ni.Count, l = 0; k-- > 0; l = k) {
+                            if(ni[l] == bi || ni[k] == bi) continue;
+                            if(Util.lineLineIntersect(a, b, Verts[ni[l]], Verts[ni[k]]))
                                 goto label_breakContinue1;
                         }
-                    }
 
-                    for(int k = vi.Count, l = 0; k-- > 0; l = k) {
-                        // if(l == i || k == i) continue;
-                        if(vi[l] == ai || vi[k] == ai) continue;
-                        if(Util.lineLineIntersect(a, b, Verts[vi[l]], Verts[vi[k]]))
-                            goto label_breakContinue1;
-                    }
-
-                    List<int> oi = vi;
-                    vi = new List<int>(oi.Count + ni.Count + 2);
-
-                    for(int l = 0; l <= i; l++) vi.Add(oi[l]);
-                    for(int l = j; ; ) {
-                        vi.Add(ni[l]);
-                        if(l-- == 0) l = ni.Count - 1;
-
-                        if(l == j) {
-                            vi.Add(ni[l]);
-                            break;
+                        foreach(List<int> ii in islands) {
+                            if(ii == ni) {
+                                // Debug.Log("skip");
+                                continue;
+                            }
+                            for(int k = ii.Count, l = 0; k-- > 0; l = k) {
+                                if(Util.lineLineIntersect(a, b, Verts[ii[l]], Verts[ii[k]]))
+                                    goto label_breakContinue1;
+                            }
                         }
+
+                        for(int k = vi.Count, l = 0; k-- > 0; l = k) {
+                            // if(l == i || k == i) continue;
+                            if(vi[l] == ai || vi[k] == ai) continue;
+                            if(Util.lineLineIntersect(a, b, Verts[vi[l]], Verts[vi[k]]))
+                                goto label_breakContinue1;
+                        }
+
+                        List<int> oi = vi;
+                        vi = new List<int>(oi.Count + ni.Count + 2);
+
+                        for(int l = 0; l <= i; l++) vi.Add(oi[l]);
+                        for(int l = j; ; ) {
+                            vi.Add(ni[l]);
+                            if(l-- == 0) l = ni.Count - 1;
+
+                            if(l == j) {
+                                vi.Add(ni[l]);
+                                break;
+                            }
+                        }
+                        for(int l = i; ; ) {
+                            vi.Add(oi[l]);
+                            if(++l == oi.Count) break;
+                            //  if( l == i ) break;
+                        }
+
+                        //  Debug.Log( "a  "+vi.Count+"  b "+(oi.Count+ni.Count+2));
+                        Debug.DrawLine(a, b, Color.black);
+
+
+                        // I like to use goto's and label's as composite breaks / continues for nested loops 
+                        //  aslong as you only jump forward and out there is no problems 
+                        //  yes - i could do the same by flags or  function-ify-ing the inner loop - i think this is neater and eaier to read
+                        goto label_jumpout;
+                        label_breakContinue1: ;
                     }
-                    for(int l = i; ; ) {
-                        vi.Add(oi[l]);
-                        if(++l == oi.Count) break;
-                        //  if( l == i ) break;
-                    }
-
-                    //  Debug.Log( "a  "+vi.Count+"  b "+(oi.Count+ni.Count+2));
-                    //  Debug.DrawLine( a, b );
-
-
-                    // I like to use goto's and label's as composite breaks / continues for nested loops 
-                    //  aslong as you only jump forward and out there is no problems 
-                    //  yes - i could do the same by flags or  function-ify-ing the inner loop - i think this is neater and eaier to read
-                    goto label_jumpout;
-                    label_breakContinue1: ;
                 }
+                //Debug.Log("fail");
+                continue;
+                label_jumpout: ;
+
+                islands.RemoveAt(islI);
+                change = true;
+                //*/
             }
-            label_jumpout: ;
-            //*/
+            if(change == false) {
+                Debug.Log("Critical nav mesh gen Error!!");
+                break;
+            }
         }
 
         islands = null;
