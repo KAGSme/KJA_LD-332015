@@ -101,7 +101,9 @@ public class CharMotor : MonoBehaviour {
         //Debug.DrawLine(tPos, cPos); 
 
         // if target moved much - need to recalculate path
+        
         if(Path != null && LastPath -Time.frameCount < -10 ) {
+           // Debug.Log(" LastPath -Time.frameCount " + (LastPath - Time.frameCount) );
             if((Path.Smooth[0].P - tPos).sqrMagnitude > 0.25f  || LastPath - Time.frameCount  <  -180 ) Path = null;
 
         }
