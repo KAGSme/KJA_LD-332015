@@ -25,7 +25,8 @@ public class CharMotor : MonoBehaviour {
     //two targeting modes..
     public CharMotor Target;
 
-    protected Vector2 TargetP;
+    [HideInInspector]
+    public Vector2 TargetP;
     protected  NavMesh.Node TargetNode;
 
 

@@ -122,25 +122,28 @@ public class NavMesh : MonoBehaviour {
 
         List<List<int>> islands = new List<List<int>>();
 
-        
-        //obstacles - subtract thse from outline poly gon - overlaps not handled
-        var gos = GameObject.FindGameObjectsWithTag("NavMesh");
-       
-        foreach(GameObject go in gos) {
-            foreach( var subCol in go.GetComponents<PolygonCollider2D>() ) {
-                trns = go.transform;
 
-                List<int> ni = new List<int>(subCol.points.GetLength(0));
+		//obstacles - subtract thse from outline poly gon - overlaps not handled
+		var gos = GameObject.FindGameObjectsWithTag("NavMesh");
 
-                for(int i = 0; i < col.points.GetLength(0); i++) {
-                    ni.Add(Verts.Count);
-                    Verts.Add(trns.TransformPoint(subCol.points[i]));
-                }
-                // for(int i = col.points.GetLength(0); i-- > 0; ) ni.Add(trns.TransformPoint(col.points[i]));
+		foreach (GameObject go in gos)
+		{
+			foreach (var subCol in go.GetComponents<PolygonCollider2D>())
+			{
+				trns = go.transform;
 
-                islands.Add(ni);
-            }
-        }
+				List<int> ni = new List<int>(subCol.points.GetLength(0));
+
+				for (int i = 0; i < subCol.points.GetLength(0); i++)
+				{
+					ni.Add(Verts.Count);
+					Verts.Add(trns.TransformPoint(subCol.points[i]));
+				}
+				// for(int i = col.points.GetLength( 0); i-- > 0; ) ni.Add(trns.TransformPoint(col.points[i]));
+
+				islands.Add(ni);
+			}
+		}
 
 
         //this loop runs through all the islands (obstacles) and adds them in keyhole fashion to the current polygon 

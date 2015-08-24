@@ -13,6 +13,10 @@ public class PlayerAbilities : MonoBehaviour {
     public float acidSpitRange = 100;
     bool acidSpitReady;
     LineRenderer mainLine;
+    public float invisibleTimer;
+    float invisibleInit;
+    Color color;
+    
 
 	// Use this for initialization
 	void Start () {
@@ -20,10 +24,12 @@ public class PlayerAbilities : MonoBehaviour {
         acidSpitReady = false;
         mainLine = GetComponent<LineRenderer>();
         ResetLine();
+        invisibleInit = invisibleTimer;
 	}
 	
 	// Update is called once per frame
 	void Update () {
+        IsInvisible();
         AcidSpit();
 
         if (Input.GetButtonDown("Ability1") && pData.Stamina >= abilityCost[0] && pData.Mana >= abilityCost[0])
@@ -41,9 +47,16 @@ public class PlayerAbilities : MonoBehaviour {
                 pData.IncreaseStamina(-abilityCost[1]);
             }
         }
-        if (Input.GetButtonDown("Ability3") && pData.Stamina >= abilityCost[2] && pData.Mana >= abilityCost[2])
+        if (Input.GetButtonDown("Ability3") && pData.Stamina >= abilityCost[2] && pData.Mana >= abilityCost[2] && !pData.isInvisible)
         {
-
+            invisibleTimer = invisibleInit;
+            pData.isInvisible = true;
+            pData.IncreaseMana(-abilityCost[2]);
+            pData.IncreaseStamina(-abilityCost[2]);
+        }
+        if (pData.isInvisible)
+        {
+            if ((invisibleTimer -= Time.deltaTime) <= 0) pData.isInvisible = false;
         }
         if (Input.GetButtonDown("Ability3") &&  pData.Mana >= abilityCost[2])
         {
@@ -75,6 +88,20 @@ public class PlayerAbilities : MonoBehaviour {
 
                 }
             }
+        }
+    }
+
+    void IsInvisible()
+    {
+        if (pData.isInvisible)
+        { 
+            GetComponent<CharMotor>().RotObj.gameObject.GetComponent<SpriteRenderer>().color = new Color(0.6f,0.6f,1,0.5f);
+            gameObject.layer = LayerMask.NameToLayer("PlayerInvisible");
+        }
+        if (!pData.isInvisible) 
+        {
+            GetComponent<CharMotor>().RotObj.gameObject.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1);
+            gameObject.layer = LayerMask.NameToLayer("Player");
         }
     }
 
