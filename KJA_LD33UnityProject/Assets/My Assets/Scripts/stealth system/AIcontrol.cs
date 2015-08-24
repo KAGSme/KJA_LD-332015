@@ -655,8 +655,22 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
                 changeStatus(alertStatus.spotted);
             }
         }
+    }
 
+    void OnDrawGizmos() {
+        if(Application.isPlaying) return;
 
+        if(!randomPatrol && patrolRoute.Count >0 ) {
+            Vector3 lp = patrolRoute[patrolRoute.Count-1].transform.position;
+            foreach(var wp in patrolRoute) {
+                var p = wp.transform.position;
+                Gizmos.color = Color.red;
+                Gizmos.DrawLine(p, lp);
+                Gizmos.color = Color.yellow;
+                Gizmos.DrawLine(p, transform.position);
+                lp = p;
+            }
+        }
 
     }
 

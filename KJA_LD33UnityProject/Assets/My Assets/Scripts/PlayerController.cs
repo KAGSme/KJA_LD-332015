@@ -97,7 +97,7 @@ public class PlayerController : MonoBehaviour {
                     } else
                         Motor.setTarget(p);
 
-                    Instantiate(waypoint, p, Quaternion.identity);
+                    //Instantiate(waypoint, p, Quaternion.identity);
                 }
             }
 

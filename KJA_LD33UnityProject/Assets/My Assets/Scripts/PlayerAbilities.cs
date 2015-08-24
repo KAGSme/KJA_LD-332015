@@ -53,9 +53,11 @@ public class PlayerAbilities : MonoBehaviour {
         if (Input.GetButtonDown("Ability3") && pData.Stamina >= abilityCost[2] && pData.Mana >= abilityCost[2] && !pData.isInvisible)
         {
             var charMotors = FindObjectsOfType<CharMotor>();
-            foreach (var ch in charMotors)
-            {
+            foreach (var ch in charMotors) {
                 if (ch.Target != null && ch.Target.gameObject.tag == "Player") ch.Target = null;
+            }
+            foreach(var ch in FindObjectsOfType<Enemy>()) {
+                if(ch.Target != null && ch.Target.gameObject.tag == "Player") ch.Target = null;
             }
             invisibleTimer = invisibleInit;
             pData.isInvisible = true;
@@ -80,7 +82,7 @@ public class PlayerAbilities : MonoBehaviour {
                 }
                 if (c.gameObject.layer == LayerMask.NameToLayer("villager"))
                 {
-                    c.gameObject.GetComponent<CharMotor>().applyDamage(-kaboomDmg, GetComponent<CharMotor>());
+                    c.gameObject.GetComponent<CharMotor>().applyDamage(-kaboomDmg, null );// GetComponent<CharMotor>());  //no src since you healing
                 }
             }
         }
