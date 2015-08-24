@@ -105,6 +105,7 @@ public class PlayerAbilities : MonoBehaviour {
                     var angle = Mathf.Atan2(mouseDirection.y, mouseDirection.x) * Mathf.Rad2Deg;
 
                     GameObject acidSpitClone = (GameObject)Instantiate(acidSpitPrefab, transform.position, Quaternion.AngleAxis(angle - 90, Vector3.forward));
+                    Physics2D.IgnoreCollision(acidSpitClone.GetComponent<Collider2D>(), GetComponent<Collider2D>());
                     acidSpitClone.GetComponent<AcidSpit>().SetDestination(position);
                     acidSpitReady = false;
 
@@ -137,5 +138,11 @@ public class PlayerAbilities : MonoBehaviour {
     {
         mainLine.SetPosition(0, transform.position);
         mainLine.SetPosition(1, transform.position);
+    }
+
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, kaboomRadius);
     }
 }

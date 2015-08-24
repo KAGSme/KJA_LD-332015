@@ -28,6 +28,7 @@ public class AcidSpit : MonoBehaviour {
             Debug.Log("spit destination reached");
             Explode();
         }
+        
     }
 
     public void SetDestination(Vector3 setDestination)
@@ -42,7 +43,7 @@ public class AcidSpit : MonoBehaviour {
         Destroy(this.gameObject);
     }
 
-    void OnTriggerEnter(Collider coll)
+    void OnCollisionEnter2D(Collision2D coll)
     {
         if (coll.gameObject.tag != "Player")
         {
