@@ -19,8 +19,8 @@ public class VillageStatus : MonoBehaviour {
         set
         {
             deathCount += value;
-            if (deathCount == villagerCount) { 
-                //fail state
+            if (deathCount == villagerCount) {
+                Application.LoadLevel("main menu");
             }
         }
     }
