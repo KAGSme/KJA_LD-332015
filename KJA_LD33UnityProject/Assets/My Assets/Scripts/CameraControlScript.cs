@@ -26,7 +26,7 @@ public class CameraControlScript : MonoBehaviour {
         float scrollDelta = Input.GetAxis("Mouse ScrollWheel");
         if (scrollDelta > 0) { Camera.main.orthographicSize -= scrollDelta * zoomSpeed; }
         if (scrollDelta < 0) { Camera.main.orthographicSize -= scrollDelta * zoomSpeed; }
-        Camera.main.orthographicSize = Mathf.Clamp(Camera.main.orthographicSize, 10, 80);
+        Camera.main.orthographicSize = Mathf.Clamp(Camera.main.orthographicSize, 10, 60);
 
         Vector3 tempV3 = transform.position;
 
