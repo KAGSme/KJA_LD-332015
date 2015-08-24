@@ -563,10 +563,7 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 
 	public void recvDamage(int dmg, CharMotor src)
 	{
-<<<<<<< HEAD
-		if ((Health -= dmg) <= 0) Destroy(gameObject);
-		else if( src != null ) spotted(src);
-=======
+
 		// if(this == null) return;
         if ((Health -= dmg) <= 0)
         {
@@ -575,7 +572,7 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
             Destroy(gameObject);
         }
         else if (src != null) spotted(src);
->>>>>>> 8ef2b9eb9047f4bb1c4f89e2ed52952b438e3f1f
+
 	}
 
 
