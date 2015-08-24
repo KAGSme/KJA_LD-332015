@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class VillageStatus : MonoBehaviour {
 
@@ -8,25 +9,25 @@ public class VillageStatus : MonoBehaviour {
 
     int villagerCount = 0;
     int deathCount = 0;
+    Text text;
 
     public int VillagerCount
     {
         get { return villagerCount; }
     }
 
-    public int IncreaseDeatchCount
+    public void IncreaseDeathCount()
     {
-        set
+            deathCount++;
+            Debug.Log(deathCount);
+            if (deathCount == villagerCount) 
         {
-            deathCount += value;
-            if (deathCount == villagerCount) {
-                Application.LoadLevel("main menu");
-            }
+            Application.LoadLevel("main menu");
         }
     }
 
 	// Use this for initialization
-	void Start () {
+	void Awake () {
         if (vStatus != null) Destroy(this.gameObject);
         else vStatus = this;
 
@@ -38,9 +39,13 @@ public class VillageStatus : MonoBehaviour {
                 villagerCount++;
             }
         }
+
+        text = GetComponent<Text>();
 	}
 	
 	// Update is called once per frame
 	void Update () {
+        var living = villagerCount - deathCount;
+        text.text = living.ToString() + " Villagers Alive";
 	}
 }
