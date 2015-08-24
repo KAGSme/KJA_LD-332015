@@ -342,7 +342,7 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 
 	void alert()
 	{
-		if (Health < 50)
+		if (Health <= 50)
 		{
 			changeStatus(alertStatus.flee);
             return;
