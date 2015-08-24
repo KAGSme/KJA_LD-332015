@@ -63,13 +63,22 @@ Then invoke this using reflection:
     }
 
 
+    public bool check( Vector2 at ) {
+
+        Vector2 vec = ((Vector2) Motor.Trnsfrm.position - at );// *Frc;
+        var mag = vec.magnitude; vec /= mag; if(mag > Radius) return false;
+        if(Vector2.Dot(Motor.RotObj.up, vec.normalized) < Cone) return false;
+
+        var hit = Physics2D.Raycast(Motor.Trnsfrm.position, -vec, mag, ObstacleLayers);
+        return hit.collider == null;
+    }
+
+
 
     void Update() {
 
         if((Timer -= Time.deltaTime) < 0) {
             Timer = Freq;
-
-
 
             var cols = Physics2D.OverlapCircleAll(Motor.Trnsfrm.position, Radius, Layers);
             foreach(var c in cols) {
@@ -78,7 +87,7 @@ Then invoke this using reflection:
 
                 Vector2 vec = (Motor.Trnsfrm.position - mtr.Trnsfrm.position);// *Frc;
                 var mag = vec.magnitude; vec /= mag;
-                if(Vector2.Dot(Motor.Trnsfrm.up, vec.normalized) < Cone) continue;
+                if(Vector2.Dot(Motor.RotObj.up, vec.normalized) < Cone) continue;
 
                 var hit = Physics2D.Raycast(Motor.Trnsfrm.position, -vec, mag, ObstacleLayers);
                 //Debug.DrawLine(Motor.Trnsfrm.position, (Vector2)Motor.Trnsfrm.position - vec * mag);
@@ -86,7 +95,6 @@ Then invoke this using reflection:
 
                 if(hit.collider != null) continue;
                 
-
                 Recv.spotted(mtr);
             }
 

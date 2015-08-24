@@ -5,8 +5,8 @@ using System.Collections.Generic;
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour {
 
-    float acceleration = 100;
-    float maxSpeed = 100;
+    //float acceleration = 100;
+    //float maxSpeed = 100;
     public float deadzone = 3f;
     Rigidbody2D rigidbodyThis;
     Vector3 mouseDirection;
@@ -29,6 +29,8 @@ public class PlayerController : MonoBehaviour {
 
     public List<Attack> Attacks;
 
+    public LayerMask VilagerLayerMask;
+
     Attack CurAttack;
 
 	// Use this for initialization
@@ -48,14 +50,25 @@ public class PlayerController : MonoBehaviour {
 
         Motor.Speed = DefSpeed;
         if(CurAttack != null) {
-            // DesVec = Vector2.zero;
+            if(Motor.Target == CurAttack.LastTarget && Motor.Target != null) {
+                var ai = Motor.Target.GetComponent<AIcontrol>();
+
+                foreach(var v in Physics2D.OverlapCircleAll(Motor.Trnsfrm.position, AIcontrol.MaxVisRange, VilagerLayerMask)) {
+                    var aic = v.GetComponent<AIcontrol>();
+                    if(aic == ai || aic == null) continue;
+
+                    aic.check(Motor);
+                }
+            }
             if(Time.fixedTime - CurAttack.LastAttack > CurAttack.Duration) {
                 //Debug.Log("dmg " + CurAttack.Damage);
 
+
+
                 if(Motor.Target == CurAttack.LastTarget && Motor.Target != null) {
 
-
                     var ai = Motor.Target.GetComponent<AIcontrol>();
+                    
                     if(ai != null) {
                         GetComponent<PlayerData>().IncreaseMana(100);
                         Destroy(ai.gameObject);
@@ -105,7 +118,7 @@ public class PlayerController : MonoBehaviour {
                                 ai.Mtr.enabled = false;
                                 ai.enabled = false;
                                 ai.Mtr.Bdy.velocity = Vector2.zero;
-                                a.LastAttack += 1.0f;
+                                a.LastAttack += 1.5f;
                             }
                             break;
                         }
