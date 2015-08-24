@@ -230,6 +230,12 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 		//Debug.Log("patrol");
 		Mtr.setTarget(patrolRoute[i].position);
 		float leeway = 1.2f; //jim - bbigger leeway = stuck less
+
+        if(Mtr.stuckCheck() ) {
+            leeway = float.MaxValue;
+            Debug.Log(name+" ::patrol stuck" );
+        }
+
 		if (Mtr.Trnsfrm.position.x > patrolRoute[i].position.x - leeway && Mtr.Trnsfrm.position.x < patrolRoute[i].position.x + leeway)
 		{
 			if (Mtr.Trnsfrm.position.y > patrolRoute[i].position.y - leeway && Mtr.Trnsfrm.position.y < patrolRoute[i].position.y + leeway)
@@ -366,9 +372,16 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 		}
 		if (type == charType.villager)
 		{
+
             if(((Vector2)Mtr.Trnsfrm.position - Mtr.TargetP).sqrMagnitude < 0.75f) {
-                if(Time.fixedTime - LSpotted > 5.0f)
+                if(Time.fixedTime - LSpotted > 5.0f) {
                     changeStatus(alertStatus.calm);
+                    return;
+                }
+            }
+            if(Mtr.stuckCheck()) {
+                Debug.Log(name + " ::alert_villager stuck");
+                Mtr.setTarget(SafeZoneWP.getP());
             }
             //Debug.Log("go to safe zone");
            // Mtr.setTarget(SafeZoneWP.getP());
@@ -464,6 +477,11 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
     void assist() {
         if(((Vector2)Mtr.Trnsfrm.position - Mtr.TargetP).sqrMagnitude < 0.75f)
             changeStatus(alertStatus.calm);
+
+        if(Mtr.stuckCheck()) {
+            Debug.Log(name + " ::assist stuck");
+            changeStatus(alertStatus.calm);
+        }
     }
 	public void ensureStatus(alertStatus newStatus)
 	{
@@ -473,7 +491,7 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 	{
 
 		curState = newStatus;
-		Debug.Log("new state: " + newStatus);
+		//Debug.Log("new state: " + newStatus);
 		if (curState == alertStatus.calm)
 		{
 			audio.playCalm();
@@ -600,9 +618,14 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
     }
 
 
-	void regenHP()
-	{   
-        
+	void regenHP() //flee
+	{
+
+        if(Mtr.stuckCheck()) {         
+            Debug.Log(name + " ::regenHP stuck");
+            Mtr.setTarget(SafeZoneWP.getP());
+        }
+
 		if (Health >= 100)
 		{
 			changeStatus(alertStatus.calm);

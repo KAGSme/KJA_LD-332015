@@ -217,6 +217,8 @@ public class CharMotor : MonoBehaviour {
 
     void FixedUpdate() {
 
+        bool stuck = false;
+
         var mag = DesVec.magnitude;
         if(mag > 0.01f) {
             DesVec /= mag;
@@ -246,10 +248,43 @@ public class CharMotor : MonoBehaviour {
                 CurSpeed += Accel * Time.deltaTime;
                 if(CurSpeed > Speed) CurSpeed = Speed;
             }
-           
+
+            if(CurSpeed > 0.01f) {
+                float diff = (LPos - (Vector2)Trnsfrm.position).magnitude;
+
+                TotDiff += diff - Diff[DiffI];
+                Diff[DiffI] = diff;
+                DiffI = (DiffI + 1) % 16;
+                //Debug.Log(name + " Diff " + (TotDiff / 16.0f));
+                stuck =  TotDiff < 0.01f;  
+            }
+            
+
             Bdy.velocity = DesVec * CurSpeed;
         } else Bdy.velocity = Vector2.zero;
+
+        if(!stuck) {
+            LNStuck = Time.fixedTime;
+        } else if( Time.fixedTime - LNStuck > 0.5f ) {
+            IsStuck = true;
+
+        }
+        LPos = Trnsfrm.position;
     }
+
+    public bool stuckCheck() {
+        if(IsStuck) {
+            LNStuck = Time.fixedTime;
+            IsStuck = false;
+            return true;
+        } else return false;
+    }
+    public bool IsStuck = false;
+    float LNStuck;
+    int DiffI = 0 ;
+    float[] Diff = new float[16];
+    float TotDiff;
+    Vector2 LPos;
 
     // wave manager needs to know how many enemies are active
     void OnEnable() {
