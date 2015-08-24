@@ -128,10 +128,11 @@ public class NavMesh : MonoBehaviour {
 
 		foreach (GameObject go in gos)
 		{
-			col = go.GetComponent<PolygonCollider2D>();
-			trns = go.transform;
+			foreach (var subCol in go.GetComponents<PolygonCollider2D>())
+			{
+				trns = go.transform;
 
-			List<int> ni = new List<int>(col.points.GetLength(0));
+				List<int> ni = new List<int>(subCol.points.GetLength(0));
 
 				for (int i = 0; i < subCol.points.GetLength(0); i++)
 				{
@@ -141,7 +142,7 @@ public class NavMesh : MonoBehaviour {
 				// for(int i = col.points.GetLength( 0); i-- > 0; ) ni.Add(trns.TransformPoint(col.points[i]));
 
 				islands.Add(ni);
-			islands.Add(ni);
+			}
 		}
 
 
