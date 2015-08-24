@@ -14,6 +14,7 @@ public class PlayerData : MonoBehaviour, CharMotor.DamageReceiver {
     public float maxStamina;
     [Range(1, 600)]
     public float staminaRegen;
+    public bool isInvisible;
 
     public float Hp { get { return hp; } }
     public float Mana { get { return mana; } }
@@ -21,7 +22,7 @@ public class PlayerData : MonoBehaviour, CharMotor.DamageReceiver {
 
 	// Use this for initialization
 	void Start () {
-        hp = maxhp/2;
+        hp = maxhp;
         mana = 100;
         stamina = 0;
 	}
@@ -32,14 +33,16 @@ public class PlayerData : MonoBehaviour, CharMotor.DamageReceiver {
         {
             stamina += Time.deltaTime * staminaRegen;
         }
-        hp = Mathf.Clamp(hp, 0, maxhp);
-        mana = Mathf.Clamp(mana, 0, maxMana);
         stamina = Mathf.Clamp(stamina, 0, maxStamina);
+
+        if(hp <= 0){
+            //gameover
+        }
 	}
 
      public void IncreaseHP(int increase)
     {
-        hp = Mathf.Clamp(hp+increase, 0, maxhp);
+        hp = Mathf.Clamp(hp+increase, -1, maxhp);
     }
 
      public void IncreaseMana(int increase)
