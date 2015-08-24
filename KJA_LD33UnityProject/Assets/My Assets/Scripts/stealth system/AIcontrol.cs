@@ -334,7 +334,7 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 //        Mtr.Targe;
 	}
 
-	//watch the person who went to investigate. if they die then go on alert 
+/*	//watch the person who went to investigate. if they die then go on alert 
 	//done
 	void watch()
 	{
@@ -346,7 +346,7 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 		Quaternion q = Quaternion.AngleAxis(angle - 180, Vector3.forward);
 		transform.rotation = Quaternion.Slerp(transform.rotation, q, Time.deltaTime * 10);
 	}
-
+    */
     public class DuplicateKeyComparer<K> : IComparer<K> where K : System.IComparable {
         public int Compare(K x, K y) {
             int result = x.CompareTo(y);
@@ -366,8 +366,12 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 		}
 		if (type == charType.villager)
 		{
-			//Debug.Log("go to safe zone");
-            Mtr.setTarget(SafeZoneWP.getP());
+            if(((Vector2)Mtr.Trnsfrm.position - Mtr.TargetP).sqrMagnitude < 0.75f) {
+                if(Time.fixedTime - LSpotted > 5.0f)
+                    changeStatus(alertStatus.calm);
+            }
+            //Debug.Log("go to safe zone");
+           // Mtr.setTarget(SafeZoneWP.getP());
 		}
 		else if (type == charType.guard)
 		{
@@ -491,6 +495,11 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 		else if (newStatus == alertStatus.alert)
 		{
 
+            if(type == charType.villager) {
+                //Debug.Log("go to safe zone");
+                Mtr.setTarget(SafeZoneWP.getP());
+            }
+
             if(Threat == player) {
                 Hostile = true;
                 Vis.Layers = HostileMask;
@@ -505,13 +514,13 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 		}
 	}
 
-	public void changeStatus(alertStatus newStatus, GameObject watchThis)
+	/*public void changeStatus(alertStatus newStatus, GameObject watchThis)
 	{
 		curState = newStatus;
 		startTime = Time.time;
 		Debug.Log("new state: " + newStatus);
 		watch();
-	}
+	}*/
 
 	public alertStatus getStatus()
 	{
@@ -554,7 +563,6 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 
 	public void recvDamage(int dmg, CharMotor src)
 	{
-		// if(this == null) return;
 		if ((Health -= dmg) <= 0) Destroy(gameObject);
 		else if( src != null ) spotted(src);
 	}

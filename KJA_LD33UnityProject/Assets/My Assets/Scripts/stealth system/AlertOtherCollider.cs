@@ -4,7 +4,7 @@ using System.Collections;
 public class AlertOtherCollider : MonoBehaviour {
 
 	public AIcontrol attatchedEnemy;
-
+/*
 	void OnTriggerStay2D(Collider2D other)
 	{
 		//Debug.Log("call " + other.name);
@@ -29,5 +29,5 @@ public class AlertOtherCollider : MonoBehaviour {
 			Debug.Log("no call " + other.name);
 			other.GetComponent<AIcontrol>().changeStatus(alertStatus.calm);
 		}
-	}
+	} */
 }
