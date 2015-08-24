@@ -37,7 +37,14 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 	public Vector3 safeZone;
     public bool isStationary;
     public bool randomPatrol = false; //jim -- was too lazy to make several patrol paths
+
+    public LayerMask HostileMask;
+
+    public bool Hostile = false;
+
+    public static float MaxVisRange = 0;
     static CharMotor player;
+    Vector2 LSpottedPos;
    /* public float attackRateOfFire;
     public int Damage;
 	public float range;
@@ -71,6 +78,12 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
     Vision Vis;
     Repulsor Rep;
     Animation Anim;
+    LineRenderer LnRndr;
+
+    public float ThreatLevel = 0;
+    float LSpotted;
+    bool Spotted;
+
 
     float DefSpeed;
 
@@ -83,7 +96,9 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
         Anim = GetComponentInChildren<Animation>();
         Vis = GetComponentInChildren<Vision>();
         Rep = GetComponent<Repulsor>();
+        LnRndr = GetComponentInChildren<LineRenderer>();
         Vis.Recv = this;
+        MaxVisRange = Mathf.Max(MaxVisRange, Vis.Radius);
 	}
 
     void Start() {
@@ -95,6 +110,19 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
     }
 	void Update()
 	{
+
+        if(!Spotted) {
+            ThreatLevel -= Time.deltaTime;
+        } else {
+            ThreatLevel = Mathf.Max(0, ThreatLevel);
+            ThreatLevel += Time.deltaTime;
+
+            LSpotted = Time.deltaTime;
+            LSpottedPos = player.Trnsfrm.position; 
+            Spotted = false;
+        }
+
+        LnRndr.enabled = false;
 
         if(CurAttack != null) {
             // DesVec = Vector2.zero;
@@ -122,8 +150,8 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 				}
 				break;
 			case alertStatus.spotted:
-				//spotted();
-				//Debug.Log("countdown time: " + (Time.time - startTime));
+				spotted();
+				/*//Debug.Log("countdown time: " + (Time.time - startTime));
 				if (Time.time - startTime > inspectToAlarmTime)
 				{
 					//Debug.Log("countdown done");
@@ -132,6 +160,8 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 				}
 				else
 				{
+
+                    /*
 					Vector2 direction = lootAtPoint - transform.position;
 					RaycastHit2D hit = Physics2D.Raycast(transform.position, direction.normalized, 100, LayerMask.GetMask("Player"));
 					Debug.DrawLine(transform.position, lootAtPoint, Color.red);
@@ -143,19 +173,19 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 					else
 					{
 						//Debug.Log("hit" + hit.collider.gameObject.name);
-					}
-				}
+					}* /
+				} */
 				break;
 			case alertStatus.inspect:
-				//inspect();
-				//Debug.Log("countdown time: " + (Time.time - startTime));
+			    inspect();
+			/*	//Debug.Log("countdown time: " + (Time.time - startTime));
 				if (Time.time - startTime > inspectToCalmTime)
 				{
 					//Debug.Log("countdown done");
 					changeStatus(alertStatus.calm);
 					alertOtherCol.enabled = false;
-				}
-				break;
+				}*/
+				break; 
 			case alertStatus.watch:
 				//watch();
 				if (Time.time - startTime > inspectToCalmTime)
@@ -226,14 +256,29 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 	//if can see player either go to alert or investigate
 	void spotted()
 	{   
-		//stop walking
-		Mtr.setTarget(new Vector2(Mtr.Trnsfrm.position.x, Mtr.Trnsfrm.position.y));
-		//look at player
-		Debug.Log(lootAtPoint);
-		Vector3 vectorToTarget = lootAtPoint - Mtr.Trnsfrm.position;
+		
+        Mtr.Target = player; //look at player
+        Mtr.Speed = 0; //stop walking
+
+        if(Vis.check(player.Trnsfrm.position)) {
+            LnRndr.enabled = true;
+            LnRndr.SetPosition(0, Mtr.Trnsfrm.position + Vector3.back);
+            LnRndr.SetPosition(1, player.Trnsfrm.position + Vector3.back);
+
+            Spotted = true;
+            if(ThreatLevel > inspectToAlarmTime)  {
+                Threat = player;
+                changeStatus(alertStatus.alert);
+            }
+        } else if ( Time.fixedTime - LSpotted  > 0.5f )  {
+            changeStatus(alertStatus.inspect);
+        }
+			
+/*		Vector3 vectorToTarget = lootAtPoint - Mtr.Trnsfrm.position;
 		float angle = Mathf.Atan2(vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg;
 		Quaternion q = Quaternion.AngleAxis(angle - 180, Vector3.forward);
 		transform.rotation = Quaternion.Slerp(transform.rotation, q, Time.deltaTime * 10);
+ * */
 		//if looking at time is longer go to alert status	
 	}
 
@@ -242,9 +287,25 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 	void inspect()
 	{
 		//alert other enemys
-		alertOtherCol.enabled = true;
+		//alertOtherCol.enabled = true;
 		//move to players last know location
-		Mtr.setTarget(lootAtPoint);	
+        Mtr.setTarget(LSpottedPos);
+
+        if(Vis.check(player.Trnsfrm.position)) {
+            LnRndr.enabled = true;
+            LnRndr.SetPosition(0, Mtr.Trnsfrm.position + Vector3.back);
+            LnRndr.SetPosition(1, player.Trnsfrm.position + Vector3.back);
+
+            Spotted = true;
+            if(ThreatLevel > inspectToAlarmTime) {
+                Threat = player;
+                changeStatus(alertStatus.alert);
+            }
+
+        } else if(ThreatLevel < -2.0f ) {
+            changeStatus(alertStatus.calm);
+        }
+//        Mtr.Targe;
 	}
 
 	//watch the person who went to investigate. if they die then go on alert 
@@ -271,7 +332,7 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 		else if (type == charType.guard)
 		{
            // Debug.Log(" alert " + Threat);
-            if( Threat == null ) {
+            if( Threat == null || ThreatLevel < -3.0f ) {
                 changeStatus( alertStatus.calm ); 
                 return;
             }
@@ -327,7 +388,7 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 	{
 
 		curState = newStatus;
-		//Debug.Log("new state: " + newStatus);
+		Debug.Log("new state: " + newStatus);
 		if (curState == alertStatus.calm)
 		{
 			audio.clip = audioCalm;
@@ -342,17 +403,23 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 		{
 			audio.clip = audioSpotted;
 			audio.Play();
-			spotted();
+			//spotted();
 		}
 		else if (newStatus == alertStatus.inspect)
 		{
-			inspect();
+			//inspect();
 		}
 		else if (newStatus == alertStatus.alert)
 		{
+
+            if(Threat == player) {
+                Hostile = true;
+                Vis.Layers = HostileMask;
+                GetComponentInChildren<SpriteRenderer>().color = Color.red;
+            }
 			audio.clip = audioAlarm;
 			audio.Play();
-			alert();
+			//alert();
 		}
 	}
 
@@ -390,7 +457,7 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 		}
 	}
 
-	public void lostPlayer()
+/*	public void lostPlayer()
 	{
 		if (curState == alertStatus.spotted)
 		{
@@ -400,7 +467,7 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 		{
 			changeStatus(alertStatus.inspect);
 		}
-	}
+	} */
 
 
     public void recvDamage(int dmg, CharMotor src) {
@@ -420,10 +487,29 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
         Threat = mtr;
     }
     public void spotted(CharMotor mtr) { //for enemies
-        //Debug.Log("spotted " + mtr );
+        Debug.Log("spotted " + mtr );
 
         newThreat(mtr);
         ensureStatus(alertStatus.alert);
+        Spotted = true;
+    }
+
+    public void check(CharMotor plyr) {
+
+        if(Hostile) return;
+        if(curState == alertStatus.calm
+            || (curState == alertStatus.alert
+                && (Threat == null || (plyr.Trnsfrm.position - Mtr.Trnsfrm.position).sqrMagnitude < (Threat.Trnsfrm.position - Mtr.Trnsfrm.position).sqrMagnitude))) {
+
+            if( Vis.check(plyr.Trnsfrm.position) ) {
+                Spotted = true;
+                if(curState == alertStatus.alert) ThreatLevel = 0;
+                changeStatus(alertStatus.spotted);
+            }
+        }
+
+
 
     }
+
 }
