@@ -72,11 +72,11 @@ public class PlayerAbilities : MonoBehaviour {
             {
                 if (c.gameObject.layer == LayerMask.NameToLayer("Enemy"))
                 {
-                    c.gameObject.GetComponent<Enemy>().recvDamage(dmg, GetComponent<CharMotor>());
+                    c.gameObject.GetComponent<CharMotor>().applyDamage(dmg, GetComponent<CharMotor>());
                 }
                 if (c.gameObject.layer == LayerMask.NameToLayer("villager"))
                 {
-                    c.gameObject.GetComponent<AIcontrol>().recvDamage(dmg, GetComponent<CharMotor>());
+                    c.gameObject.GetComponent<CharMotor>().applyDamage(-dmg, GetComponent<CharMotor>());
                 }
             }
         }

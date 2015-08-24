@@ -26,8 +26,8 @@ public class AcidPuddle : MonoBehaviour {
         {
             if (coll.gameObject.tag == "Enemy")
             {
-                Debug.Log("Enemy in AcidPuddle");
                 coll.gameObject.GetComponent<CharMotor>().applyDamage(damage, null);
+                Debug.Log(coll.gameObject.name);
             }
         }
 	}

@@ -14,8 +14,10 @@ public enum alertStatus
 	inspect,
 	//watch person inspect
 	watch,
-	//everyone knows
-	alert
+    //everyone knows
+    alert,
+	//oh god, please help she's eating my soul, stop eating my soul, i need it for stuff
+	assist
 }
 
 public enum charType
@@ -210,6 +212,9 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 			case alertStatus.flee:
 				regenHP();
 				break;
+            case alertStatus.assist:
+                assist();
+                break;
 			default:
 				break;
 		}
@@ -219,6 +224,11 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 	//done
 	void Patrol()
 	{
+
+        if(Health <= 75 ) {
+            changeStatus(alertStatus.flee);
+            return;
+        }
 		//Debug.Log("patrol");
 		Mtr.setTarget(patrolRoute[i].position);
 		float leeway = 1.2f; //jim - bbigger leeway = stuck less
@@ -339,10 +349,19 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 		transform.rotation = Quaternion.Slerp(transform.rotation, q, Time.deltaTime * 10);
 	}
 
+    public class DuplicateKeyComparer<K> : IComparer<K> where K : System.IComparable {
+        public int Compare(K x, K y) {
+            int result = x.CompareTo(y);
+            if(result == 0) return 1;
+            else return -result;  // (-) invert 
+        }
+    }
 
+    int LowHealth = 70;
+    float ShoutTimer;
 	void alert()
 	{
-		if (Health <= 50)
+        if(Health <= LowHealth )
 		{
 			changeStatus(alertStatus.flee);
             return;
@@ -392,6 +411,37 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 					Rep.enabled = false;
 				}
 			}
+
+            if(CurAttack == null && (Time.fixedTime - ShoutTimer > 1.5f ) ) {
+                LowHealth = 75;
+
+                SortedList<int, AIcontrol> allies = new SortedList<int, AIcontrol>(new DuplicateKeyComparer<int>());
+                foreach( var c in Physics2D.OverlapCircleAll( Mtr.Trnsfrm.position, 15,  1 << gameObject.layer ) ) {
+                    var ai = c.GetComponent<AIcontrol>();
+                    if( ai.type == charType.villager ) continue;
+                    if(ai.curState == alertStatus.calm || (ai.curState == alertStatus.flee && ai.Health > 50)) {
+                        /*ai.Mtr.setTarget(Mtr.Trnsfrm.position);
+                        ai.changeStatus(alertStatus.assist);
+                        LowHealth = Mathf.Max( 50, LowHealth- 5 );
+                        ai.LowHealth = Mathf.Min( ai.LowHealth, ai.Health );
+                       // Debug.Log("help"); */
+                        allies.Add(ai.Health, ai);
+                    } else if(ai.curState == alertStatus.alert) LowHealth = Mathf.Max(50, LowHealth - 5);
+                }
+                //if( allies.Count == 0 ) return;
+                //Debug.Log(" allies " + allies.Count );
+                foreach(var e in allies) {
+                    var ai = e.Value;
+
+                    if(ai.Health < LowHealth) break;
+
+                    ai.Mtr.setTarget(Mtr.Trnsfrm.position);
+                    ai.changeStatus(alertStatus.assist);
+                    LowHealth = Mathf.Max(50, LowHealth - 5);
+                    ai.LowHealth = Mathf.Min(ai.LowHealth, LowHealth);
+                }
+            }
+
 			/*if(canAttack == false) {
 				if(Time.time - attackTime > attackRateOfFire) {
 					canAttack = true;
@@ -409,6 +459,10 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 		}
 	}
 
+    void assist() {
+        if(((Vector2)Mtr.Trnsfrm.position - Mtr.TargetP).sqrMagnitude < 0.75f)
+            changeStatus(alertStatus.calm);
+    }
 	public void ensureStatus(alertStatus newStatus)
 	{
 		if (curState != newStatus) changeStatus(newStatus);
@@ -507,7 +561,7 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 	{
 		// if(this == null) return;
 		if ((Health -= dmg) <= 0) Destroy(gameObject);
-		else spotted(src);
+		else if( src != null ) spotted(src);
 	}
 
 
@@ -525,8 +579,14 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
      //   Debug.Log("spotted " + mtr );
 
 		newThreat(mtr);
-		ensureStatus(alertStatus.alert);
         Spotted = true;
+        if(Threat == mtr && mtr == player && !Hostile ) {
+            ThreatLevel = Mathf.Max( ThreatLevel+ 0.5f, 0 );
+            if( curState != alertStatus.spotted && curState != alertStatus.inspect ) 
+                changeStatus(alertStatus.spotted);
+            return;
+        }		
+        ensureStatus(alertStatus.alert);        
     }
 
 
@@ -543,7 +603,7 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 			Health++;
 			canRegen = false;
 		}
-		else if (Time.time - regenCoolDown > 1)
+		else if (Time.time - regenCoolDown > 0.5 )
 		{
 			canRegen = true;
 		}
@@ -557,7 +617,8 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
 
             if( Vis.check(plyr.Trnsfrm.position) ) {
                 Spotted = true;
-                if(curState == alertStatus.alert) ThreatLevel = 0;
+                //if(curState == alertStatus.alert) 
+                ThreatLevel = 0;
                 changeStatus(alertStatus.spotted);
             }
         }
