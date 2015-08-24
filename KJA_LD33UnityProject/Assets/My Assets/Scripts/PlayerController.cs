@@ -11,6 +11,7 @@ public class PlayerController : MonoBehaviour {
     public float deadzone = 3f;
     Rigidbody2D rigidbodyThis;
     Vector3 mouseDirection;
+    public GameObject waypoint;
 
     [HideInInspector] 
     public CharMotor Motor;
@@ -95,6 +96,8 @@ public class PlayerController : MonoBehaviour {
                         Motor.Target = trgt;
                     } else
                         Motor.setTarget(p);
+
+                    Instantiate(waypoint, p, Quaternion.identity);
                 }
             }
 
