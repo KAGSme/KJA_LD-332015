@@ -25,7 +25,12 @@ public class Enemy : CharMotor, Vision.Receiver, CharMotor.DamageReceiver {
     Vision Vis;
     Repulsor Rep;
 
+    static WaveMan WavMn;
+
     protected void Start() {
+
+        if(WavMn == null) WavMn = FindObjectOfType<WaveMan>();
+        WavMn.enemySpawned();
         Speed = SpeedWander;
         base.Start();
         //Target = FindObjectOfType<PlayerController>().Motor;
@@ -122,7 +127,9 @@ public class Enemy : CharMotor, Vision.Receiver, CharMotor.DamageReceiver {
     public int Health = 20;
     public void recvDamage(int dmg, CharMotor src) {
         //if(this == null) return;
-        if((Health -= dmg) <= 0) Destroy(gameObject);
-        else if( src != null ) spotted(src);
+        if((Health -= dmg) <= 0) {
+            WavMn.enemyDied();
+            Destroy(gameObject);
+        }  else if(src != null) spotted(src);
     }
 }

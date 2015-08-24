@@ -52,10 +52,12 @@ public class WaveMan : MonoBehaviour {
     }
 
     void nextWave( ) {
+        Debug.Log("Next wave ");
         Pool.Clear();
         if(CurWave + 1 >= Waves.Count) {
            // if(Boss) Boss.SetActive(true);
-            //else nextScene();
+            //else 
+            nextScene();
             return;
         }
         CurWave++;
