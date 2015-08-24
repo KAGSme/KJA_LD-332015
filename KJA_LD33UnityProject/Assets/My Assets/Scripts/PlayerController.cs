@@ -72,6 +72,8 @@ public class PlayerController : MonoBehaviour {
                     if(ai != null) {
                         GetComponent<PlayerData>().IncreaseMana(100);
                         Destroy(ai.gameObject);
+                        Debug.Log("dead");
+                        VillageStatus.vStatus.IncreaseDeathCount();
                     } else Motor.Target.applyDamage(CurAttack.Damage, Motor);
                 }
                 CurAttack = null;
