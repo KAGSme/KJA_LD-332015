@@ -13,9 +13,11 @@ public class PlayerAbilities : MonoBehaviour {
     public float acidSpitRange = 100;
     bool acidSpitReady;
     LineRenderer mainLine;
-    public float invisibleTimer;
+    public float invisibleTimer = 6;
     float invisibleInit;
     Color color;
+    public float kaboomRadius = 5;
+    public int dmg = 50;
     
 
 	// Use this for initialization
@@ -49,6 +51,11 @@ public class PlayerAbilities : MonoBehaviour {
         }
         if (Input.GetButtonDown("Ability3") && pData.Stamina >= abilityCost[2] && pData.Mana >= abilityCost[2] && !pData.isInvisible)
         {
+            var charMotors = FindObjectsOfType<CharMotor>();
+            foreach (var ch in charMotors)
+            {
+                if (ch.Target != null && ch.Target.gameObject.tag == "Player") ch.Target = null;
+            }
             invisibleTimer = invisibleInit;
             pData.isInvisible = true;
             pData.IncreaseMana(-abilityCost[2]);
@@ -58,9 +65,20 @@ public class PlayerAbilities : MonoBehaviour {
         {
             if ((invisibleTimer -= Time.deltaTime) <= 0) pData.isInvisible = false;
         }
-        if (Input.GetButtonDown("Ability3") &&  pData.Mana >= abilityCost[2])
+        if (Input.GetButtonDown("Ability3") && pData.Mana >= abilityCost[3] && pData.Stamina >= abilityCost[3])
         {
-
+            var colls = Physics2D.OverlapCircleAll(transform.position, kaboomRadius);
+            foreach (var c in colls)
+            {
+                if (c.gameObject.layer == LayerMask.NameToLayer("Enemy"))
+                {
+                    c.gameObject.GetComponent<Enemy>().recvDamage(dmg, GetComponent<CharMotor>());
+                }
+                if (c.gameObject.layer == LayerMask.NameToLayer("villager"))
+                {
+                    c.gameObject.GetComponent<AIcontrol>().recvDamage(dmg, GetComponent<CharMotor>());
+                }
+            }
         }
 	}
 
@@ -107,8 +125,8 @@ public class PlayerAbilities : MonoBehaviour {
 
     void DrawLine(Vector3 destination)
     {
-        mainLine.SetPosition(0, transform.position);
-        mainLine.SetPosition(1, destination);
+        mainLine.SetPosition(0, new Vector3 (transform.position.x, transform.position.y, -5));
+        mainLine.SetPosition(1, new Vector3(destination.x, destination.y, -5));
     }
 
     void ResetLine()

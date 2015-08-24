@@ -5,7 +5,7 @@ public class AcidPuddle : MonoBehaviour {
 
     public float timeToDestroy;
     public float radius;
-    public float damage;
+    public int damage;
     float timerInit;
     Color color;
     //public LayerMask enemyLayers;
@@ -27,7 +27,7 @@ public class AcidPuddle : MonoBehaviour {
             if (coll.gameObject.tag == "Enemy")
             {
                 Debug.Log("Enemy in AcidPuddle");
-                //do damage over time
+                coll.gameObject.GetComponent<CharMotor>().applyDamage(damage, null);
             }
         }
 	}
