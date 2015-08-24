@@ -572,7 +572,6 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
             Destroy(gameObject);
         }
         else if (src != null) spotted(src);
-
 	}
 
 
