@@ -33,7 +33,7 @@ public class PlayerData : MonoBehaviour, CharMotor.DamageReceiver {
         {
             stamina += Time.deltaTime * staminaRegen;
         }
-        stamina = Mathf.Clamp(stamina, 0, maxStamina);
+        stamina = Mathf.Clamp(stamina, 0, Mathf.Min( maxStamina, mana ) );
 
         if(hp <= 0){
             //gameover

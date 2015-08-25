@@ -52,12 +52,13 @@ public class PlayerAbilities : MonoBehaviour {
         }
         if (Input.GetButtonDown("Ability3") && pData.Stamina >= abilityCost[2] && pData.Mana >= abilityCost[2] && !pData.isInvisible)
         {
+            var cm = GetComponent<CharMotor>();
             var charMotors = FindObjectsOfType<CharMotor>();
             foreach (var ch in charMotors) {
-                if (ch.Target != null && ch.Target.gameObject.tag == "Player") ch.Target = null;
+                if (ch.Target== cm  ) ch.Target = null;
             }
             foreach(var ch in FindObjectsOfType<Enemy>()) {
-                if(ch.Target != null && ch.Target.gameObject.tag == "Player") ch.Target = null;
+                if(ch.Target == cm ) ch.Target = null;
             }
             invisibleTimer = invisibleInit;
             pData.isInvisible = true;

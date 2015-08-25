@@ -433,6 +433,7 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
                 SortedList<int, AIcontrol> allies = new SortedList<int, AIcontrol>(new DuplicateKeyComparer<int>());
                 foreach( var c in Physics2D.OverlapCircleAll( Mtr.Trnsfrm.position, 15,  1 << gameObject.layer ) ) {
                     var ai = c.GetComponent<AIcontrol>();
+                    if(Threat == player) ai.check(Threat);
                     if( ai.type == charType.villager ) continue;
                     if(ai.curState == alertStatus.calm || (ai.curState == alertStatus.flee && ai.Health > 50)) {
                         /*ai.Mtr.setTarget(Mtr.Trnsfrm.position);
@@ -441,6 +442,9 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
                         ai.LowHealth = Mathf.Min( ai.LowHealth, ai.Health );
                        // Debug.Log("help"); */
                         allies.Add(ai.Health, ai);
+
+                        if(Threat == player) ai.check(Threat);
+
                     } else if(ai.curState == alertStatus.alert) LowHealth = Mathf.Max(50, LowHealth - 5);
                 }
                 //if( allies.Count == 0 ) return;
@@ -521,7 +525,7 @@ public class AIcontrol : MonoBehaviour, CharMotor.DamageReceiver, Vision.Receive
             if(Threat == player) {
                 Hostile = true;
                 Vis.Layers = HostileMask;
-                GetComponentInChildren<SpriteRenderer>().color = Color.red;
+                GetComponentInChildren<SpriteRenderer>().color = new Color(1.0f, 0.5f, 0.5f);
             }
 			audio.playAlarm();
 			//alert();

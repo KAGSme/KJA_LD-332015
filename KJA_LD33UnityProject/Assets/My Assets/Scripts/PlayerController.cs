@@ -72,7 +72,7 @@ public class PlayerController : MonoBehaviour {
                     var ai = Motor.Target.GetComponent<AIcontrol>();
                     
                     if(ai != null) {
-                        GetComponent<PlayerData>().IncreaseMana(100);
+                        GetComponent<PlayerData>().IncreaseMana(250);
                         Destroy(ai.gameObject);
                         Debug.Log("dead");
                         VillageStatus.vStatus.IncreaseDeathCount();
@@ -93,11 +93,16 @@ public class PlayerController : MonoBehaviour {
 
                     var col = Physics2D.OverlapCircle(p, 0.25f, AttackMask );
                     if(col && (trgt = col.GetComponent<CharMotor>()) != null) {
+                       // p = Motor.transform.position;
                         Motor.Target = trgt;
-                    } else
+                        var go = (GameObject)Instantiate(waypoint, p, Quaternion.identity);
+                        go.transform.localScale *= 1.5f;
+                    } else {
+                        Instantiate(waypoint, p, Quaternion.identity);
                         Motor.setTarget(p);
+                    }
 
-                    //Instantiate(waypoint, p, Quaternion.identity);
+                   
                 }
             }
 
