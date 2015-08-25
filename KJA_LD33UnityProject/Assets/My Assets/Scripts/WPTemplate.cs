@@ -7,13 +7,15 @@ public class WPTemplate<T> : MonoBehaviour {
     public float Radius = 1;
     static List<WPTemplate<T>> Wps = new List<WPTemplate<T>>();
 
-    Transform Trnsfrm;
+    public Transform Trnsfrm;
 
     void Awake() {
         Trnsfrm = transform;
+        Wps = new List<WPTemplate<T>>();
     }
 
     void OnEnable() {
+        if(Wps == null) Wps = new List<WPTemplate<T>>();
         Wps.Add(this);
     }
     void OnDisnable() {

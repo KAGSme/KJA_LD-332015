@@ -36,7 +36,7 @@ public class PlayerData : MonoBehaviour, CharMotor.DamageReceiver {
         stamina = Mathf.Clamp(stamina, 0, Mathf.Min( maxStamina, mana ) );
 
         if(hp <= 0){
-            Application.LoadLevel("main menu");
+            Application.LoadLevel(0);
         }
 	}
 
