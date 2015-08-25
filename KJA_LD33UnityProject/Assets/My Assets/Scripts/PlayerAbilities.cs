@@ -21,6 +21,9 @@ public class PlayerAbilities : MonoBehaviour {
     public LayerMask enemyLayers;
     public GameObject kaboomParticles;
 
+    AudioSource audio;
+    public AudioClip healing, acidSpit1, acidSpit2, invisibility, kaboom;
+
 	// Use this for initialization
 	void Start () {
         pData = gameObject.GetComponent<PlayerData>();
@@ -28,6 +31,7 @@ public class PlayerAbilities : MonoBehaviour {
         mainLine = GetComponent<LineRenderer>();
         ResetLine();
         invisibleInit = invisibleTimer;
+        audio = GetComponent<AudioSource>();
 	}
 	
 	// Update is called once per frame
@@ -40,6 +44,7 @@ public class PlayerAbilities : MonoBehaviour {
             pData.IncreaseHP(ability1HealthRegen);
             pData.IncreaseMana(-abilityCost[0]);
             pData.IncreaseStamina(-abilityCost[0]);
+            audio.PlayOneShot(healing);
         }
         if (Input.GetButtonDown("Ability2") && pData.Stamina >= abilityCost[1] && pData.Mana >= abilityCost[1])
         {
@@ -48,6 +53,7 @@ public class PlayerAbilities : MonoBehaviour {
                 acidSpitReady = true;
                 pData.IncreaseMana(-abilityCost[1]);
                 pData.IncreaseStamina(-abilityCost[1]);
+                audio.PlayOneShot(acidSpit1);
             }
         }
         if (Input.GetButtonDown("Ability3") && pData.Stamina >= abilityCost[2] && pData.Mana >= abilityCost[2] && !pData.isInvisible)
@@ -64,6 +70,7 @@ public class PlayerAbilities : MonoBehaviour {
             pData.isInvisible = true;
             pData.IncreaseMana(-abilityCost[2]);
             pData.IncreaseStamina(-abilityCost[2]);
+            audio.PlayOneShot(invisibility);
         }
         if (pData.isInvisible)
         {
@@ -73,6 +80,7 @@ public class PlayerAbilities : MonoBehaviour {
         {
             pData.IncreaseMana(-abilityCost[3]);
             pData.IncreaseStamina(-abilityCost[3]);
+            audio.PlayOneShot(kaboom);
             var particles = (GameObject)Instantiate(kaboomParticles, transform.position, Quaternion.identity);
             var colls = Physics2D.OverlapCircleAll(transform.position, kaboomRadius, enemyLayers);
             foreach (var c in colls)
@@ -103,6 +111,7 @@ public class PlayerAbilities : MonoBehaviour {
                 mainLine.SetColors(Color.green, Color.green);
                 if (Input.GetButtonDown("Fire2"))
                 {
+                    audio.PlayOneShot(acidSpit2);
                     ResetLine();
                     var mouseDirection = position - transform.position;
                     var angle = Mathf.Atan2(mouseDirection.y, mouseDirection.x) * Mathf.Rad2Deg;

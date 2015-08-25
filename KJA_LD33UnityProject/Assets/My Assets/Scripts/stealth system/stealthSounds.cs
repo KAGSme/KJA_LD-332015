@@ -13,6 +13,7 @@ public class stealthSounds : MonoBehaviour {
 	void Awake()
 	{
 		audio = this.gameObject.GetComponent<AudioSource>();
+        audio.volume = 0.1f;
 		curState = alertStatus.calm;
 	}
 
