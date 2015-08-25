@@ -41,8 +41,7 @@ public class PlayerAbilities : MonoBehaviour {
 
         if (Input.GetButtonDown("Ability1") && pData.Stamina >= abilityCost[0] && pData.Mana >= abilityCost[0])
         {
-
-
+         //   Application.LoadLevel(0);
             pData.IncreaseHP(ability1HealthRegen);
             pData.IncreaseMana(-abilityCost[0]);
             pData.IncreaseStamina(-abilityCost[0]);

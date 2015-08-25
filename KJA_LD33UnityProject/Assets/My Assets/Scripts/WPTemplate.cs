@@ -9,13 +9,15 @@ public class WPTemplate<T> : MonoBehaviour {
 
     public Transform Trnsfrm;
 
+
+
     void Awake() {
         Trnsfrm = transform;
-        Wps = new List<WPTemplate<T>>();
+        if( Wps.Count > 0 && Wps[0] == null )
+            Wps = new List<WPTemplate<T>>();
     }
 
     void OnEnable() {
-        if(Wps == null) Wps = new List<WPTemplate<T>>();
         Wps.Add(this);
     }
     void OnDisnable() {
