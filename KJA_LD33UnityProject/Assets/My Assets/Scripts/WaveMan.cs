@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -100,6 +101,9 @@ public class WaveMan : MonoBehaviour {
         GUI.Label(new Rect(30, 30, 200, 50), label );
     }    */
     void Update() {
+        text.text = ActiveEnemies.ToString() + " Enemy Monsters left";
+
+
         Delay -= Time.deltaTime;
         Elap += Time.deltaTime;
 
@@ -147,5 +151,7 @@ public class WaveMan : MonoBehaviour {
     public void registerSpawner(float rate) {
         TotalRate += rate;
     }
+
+    public Text text;
 
 }

@@ -46,6 +46,6 @@ public class VillageStatus : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         var living = villagerCount - deathCount;
-        text.text = living.ToString() + " Villagers Alive";
+        text.text = living.ToString() + " Villagers left";
 	}
 }
