@@ -1,0 +1,66 @@
+Initialize engine version: 5.1.2f1 (afd2369b692a)
+GfxDevice: creating device client; threaded=1
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.0]
+    Renderer: NVIDIA GeForce GTX 970 (ID=0x13c2)
+    Vendor:   NVIDIA
+    VRAM:     3072 MB
+Begin MonoManager ReloadAssembly
+Platform assembly: D:\Games Development\LudumDare#33\KJA_LD-332015\Out\AGoT win build\a Grain of Truth_Data\Managed\UnityEngine.dll (this message is harmless)
+Loading D:\Games Development\LudumDare#33\KJA_LD-332015\Out\AGoT win build\a Grain of Truth_Data\Managed\UnityEngine.dll into Unity Child Domain
+Platform assembly: D:\Games Development\LudumDare#33\KJA_LD-332015\Out\AGoT win build\a Grain of Truth_Data\Managed\Assembly-CSharp.dll (this message is harmless)
+Loading D:\Games Development\LudumDare#33\KJA_LD-332015\Out\AGoT win build\a Grain of Truth_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
+Platform assembly: D:\Games Development\LudumDare#33\KJA_LD-332015\Out\AGoT win build\a Grain of Truth_Data\Managed\UnityEngine.UI.dll (this message is harmless)
+Loading D:\Games Development\LudumDare#33\KJA_LD-332015\Out\AGoT win build\a Grain of Truth_Data\Managed\UnityEngine.UI.dll into Unity Child Domain
+Platform assembly: D:\Games Development\LudumDare#33\KJA_LD-332015\Out\AGoT win build\a Grain of Truth_Data\Managed\UnityEngine.Networking.dll (this message is harmless)
+Loading D:\Games Development\LudumDare#33\KJA_LD-332015\Out\AGoT win build\a Grain of Truth_Data\Managed\UnityEngine.Networking.dll into Unity Child Domain
+Platform assembly: D:\Games Development\LudumDare#33\KJA_LD-332015\Out\AGoT win build\a Grain of Truth_Data\Managed\UnityEngine.Analytics.dll (this message is harmless)
+Loading D:\Games Development\LudumDare#33\KJA_LD-332015\Out\AGoT win build\a Grain of Truth_Data\Managed\UnityEngine.Analytics.dll into Unity Child Domain
+- Completed reload, in  0.183 seconds
+desktop: 2560x1080 60Hz; virtual: 2560x1080 at 0,0
+<RI> Initializing input.
+<RI> Input initialized.
+<RI> Initialized touch support.
+Platform assembly: D:\Games Development\LudumDare#33\KJA_LD-332015\Out\AGoT win build\a Grain of Truth_Data\Managed\System.Core.dll (this message is harmless)
+Platform assembly: D:\Games Development\LudumDare#33\KJA_LD-332015\Out\AGoT win build\a Grain of Truth_Data\Managed\System.dll (this message is harmless)
+Setting up 2 worker threads for Enlighten.
+  Thread -> id: 1fe0 -> priority: 1 
+  Thread -> id: 268c -> priority: 1 
+Unloading 3 Unused Serialized files (Serialized files now loaded: 0)
+UnloadTime: 5.087583 ms
+Tilemap House (2) is still in edit mode. Please fix.Building overhead will be significant.
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 65)
+
+Tilemap House (3) is still in edit mode. Please fix.Building overhead will be significant.
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 65)
+
+Tilemap BG is still in edit mode. Please fix.Building overhead will be significant.
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 65)
+
+Next wave 
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 65)
+
+
+Unloading 4 unused Assets to reduce memory usage. Loaded Objects now: 2102.
+Total: 1.626386 ms (FindLiveObjects: 0.089652 ms CreateObjectMapping: 0.059768 ms MarkObjects: 1.462407 ms  DeleteObjects: 0.013409 ms)
+
+villager mk3 (23) ::assist stuck
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 65)
+
+villager mk3 (23) ::patrol stuck
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 65)
+
+villager mk3 (8) ::alert_villager stuck
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 65)
+
+villager mk3 (10) ::patrol stuck
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 65)
+
